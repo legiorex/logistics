@@ -6,6 +6,9 @@
 - TanStack Router
 - TanStack Query
 - React Hook Form + Zod
+- Tailwind CSS
+- shadcn/ui
+- Orval
 - MSW
 - Feature-Sliced Design
 - Zustand для точечного клиентского UI-state
