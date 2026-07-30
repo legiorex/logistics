@@ -1,0 +1,504 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Logistics Auctions API",
+    "version": "0.0.1"
+  },
+  "servers": [
+    { "url": "/api" }
+  ],
+  "tags": [
+    { "name": "auctions", "description": "Операции с аукционами" },
+    { "name": "bets", "description": "Операции со ставками" },
+    { "name": "dictionaries", "description": "Справочники" },
+    { "name": "cities", "description": "Города" },
+    { "name": "users", "description": "Пользователи" }
+  ],
+  "paths": {
+    "/auctions/list": {
+      "post": {
+        "tags": ["auctions"],
+        "operationId": "getAuctionsList",
+        "summary": "Список аукционов",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuctionListRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Список аукционов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Auction" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auctions/{auctionUuid}": {
+      "get": {
+        "tags": ["auctions"],
+        "operationId": "getAuctionByUuid",
+        "summary": "Детальная информация по аукциону",
+        "parameters": [
+          {
+            "name": "auctionUuid",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Аукцион",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Auction" }
+              }
+            }
+          },
+          "404": {
+            "description": "Аукцион не найден",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auctions/{auctionUuid}/bets": {
+      "get": {
+        "tags": ["bets"],
+        "operationId": "getAuctionBets",
+        "summary": "Список ставок по аукциону",
+        "parameters": [
+          {
+            "name": "auctionUuid",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список ставок",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Bet" }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Аукцион не найден",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["bets"],
+        "operationId": "placeBet",
+        "summary": "Установить ставку",
+        "parameters": [
+          {
+            "name": "auctionUuid",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PlaceBetRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Созданная ставка",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Bet" }
+              }
+            }
+          },
+          "404": {
+            "description": "Аукцион не найден",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dictionaries": {
+      "get": {
+        "tags": ["dictionaries"],
+        "operationId": "getDictionaries",
+        "summary": "Справочники",
+        "responses": {
+          "200": {
+            "description": "Справочники",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Dictionary" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cities": {
+      "get": {
+        "tags": ["cities"],
+        "operationId": "getCities",
+        "summary": "Список городов",
+        "responses": {
+          "200": {
+            "description": "Список городов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/City" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": ["users"],
+        "operationId": "getCurrentUser",
+        "summary": "Текущий пользователь",
+        "responses": {
+          "200": {
+            "description": "Пользователь",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": { "type": "string" },
+          "code": { "type": "string" }
+        }
+      },
+      "AuctionListRequest": {
+        "type": "object",
+        "properties": {
+          "search": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/AuctionStatus" },
+          "type": { "$ref": "#/components/schemas/AuctionType" },
+          "city": { "type": "string" }
+        }
+      },
+      "AuctionType": {
+        "type": "string",
+        "enum": ["Request", "Up", "Down", "FixPrice"]
+      },
+      "AuctionStatus": {
+        "type": "string",
+        "enum": ["active", "completed", "cancelled", "draft"]
+      },
+      "UserTradingStatus": {
+        "type": "string",
+        "enum": ["Leading", "Losing", "Winner", "OutOfTrade", "NotParticipant"]
+      },
+      "PrimaryAction": {
+        "type": "string",
+        "enum": ["make_bet", "edit_bet", "view_bets"]
+      },
+      "PaymentType": {
+        "type": "string",
+        "enum": ["cashless", "cash"]
+      },
+      "Auction": {
+        "type": "object",
+        "required": [
+          "uuid",
+          "requestNumber",
+          "type",
+          "status",
+          "route",
+          "dates",
+          "cargo",
+          "organizer",
+          "points",
+          "paymentTerms",
+          "trading",
+          "isAvailable",
+          "isBidder"
+        ],
+        "properties": {
+          "uuid": { "type": "string" },
+          "requestNumber": { "type": "string" },
+          "type": { "$ref": "#/components/schemas/AuctionType" },
+          "status": { "$ref": "#/components/schemas/AuctionStatus" },
+          "userTradingStatus": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/UserTradingStatus" }]
+          },
+          "hasMyBet": { "type": "boolean" },
+          "primaryAction": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/PrimaryAction" }]
+          },
+          "route": { "$ref": "#/components/schemas/Route" },
+          "dates": { "$ref": "#/components/schemas/AuctionDates" },
+          "cargo": { "$ref": "#/components/schemas/Cargo" },
+          "currentPrice": { "type": "number", "nullable": true },
+          "availablePrice": { "type": "number", "nullable": true },
+          "pricePerKm": { "type": "number" },
+          "betStep": { "type": "number", "nullable": true },
+          "organizer": { "$ref": "#/components/schemas/Organizer" },
+          "points": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Point" }
+          },
+          "paymentTerms": { "$ref": "#/components/schemas/PaymentTerms" },
+          "trading": { "$ref": "#/components/schemas/Trading" },
+          "isAvailable": { "type": "boolean" },
+          "isBidder": { "type": "boolean" }
+        }
+      },
+      "Route": {
+        "type": "object",
+        "required": ["load", "unload"],
+        "properties": {
+          "load": { "type": "string" },
+          "unload": { "type": "string" }
+        }
+      },
+      "AuctionDates": {
+        "type": "object",
+        "required": ["loadDateFrom", "loadDateTo", "unloadDateFrom", "unloadDateTo"],
+        "properties": {
+          "loadDateFrom": { "type": "string", "format": "date" },
+          "loadDateTo": { "type": "string", "format": "date" },
+          "unloadDateFrom": { "type": "string", "format": "date" },
+          "unloadDateTo": { "type": "string", "format": "date" }
+        }
+      },
+      "Cargo": {
+        "type": "object",
+        "required": ["name", "weightKg", "volumeM3", "bodyType"],
+        "properties": {
+          "name": { "type": "string" },
+          "weightKg": { "type": "number" },
+          "volumeM3": { "type": "number" },
+          "bodyType": { "type": "string" }
+        }
+      },
+      "Organizer": {
+        "type": "object",
+        "required": ["uuid", "name", "inn", "isContactsHidden"],
+        "properties": {
+          "uuid": { "type": "string" },
+          "name": { "type": "string" },
+          "inn": { "type": "string" },
+          "isContactsHidden": { "type": "boolean" },
+          "contacts": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/Contacts" }]
+          }
+        }
+      },
+      "Contacts": {
+        "type": "object",
+        "properties": {
+          "phone": { "type": "string" },
+          "email": { "type": "string" }
+        }
+      },
+      "Point": {
+        "type": "object",
+        "required": ["type", "city"],
+        "properties": {
+          "type": { "type": "string", "enum": ["load", "unload"] },
+          "city": { "type": "string" },
+          "address": { "type": "string", "nullable": true }
+        }
+      },
+      "PaymentTerms": {
+        "type": "object",
+        "required": ["type", "delayDays", "withoutVat"],
+        "properties": {
+          "type": { "$ref": "#/components/schemas/PaymentType" },
+          "delayDays": { "type": "integer" },
+          "withoutVat": { "type": "boolean" }
+        }
+      },
+      "Trading": {
+        "type": "object",
+        "required": [
+          "canSetBet",
+          "hideBetsHistory",
+          "hidePointsAddressAndContacts",
+          "noViewCargoPrice"
+        ],
+        "properties": {
+          "canSetBet": { "type": "boolean" },
+          "hideBetsHistory": { "type": "boolean" },
+          "hidePointsAddressAndContacts": { "type": "boolean" },
+          "noViewCargoPrice": { "type": "boolean" },
+          "min": { "type": "number", "nullable": true },
+          "max": { "type": "number", "nullable": true },
+          "step": { "type": "number", "nullable": true }
+        }
+      },
+      "Bet": {
+        "type": "object",
+        "required": [
+          "uuid",
+          "auctionUuid",
+          "carrier",
+          "price",
+          "priceWithVat",
+          "place",
+          "isWinner",
+          "isCancelled",
+          "createdAt",
+          "isMyBet"
+        ],
+        "properties": {
+          "uuid": { "type": "string" },
+          "auctionUuid": { "type": "string" },
+          "carrier": { "type": "string" },
+          "price": { "type": "number" },
+          "priceWithVat": { "type": "number" },
+          "place": { "type": "integer" },
+          "isWinner": { "type": "boolean" },
+          "isCancelled": { "type": "boolean" },
+          "cancelReason": { "type": "string", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "isMyBet": { "type": "boolean" }
+        }
+      },
+      "PlaceBetRequest": {
+        "type": "object",
+        "required": ["price"],
+        "properties": {
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        }
+      },
+      "City": {
+        "type": "object",
+        "required": ["code", "name", "region"],
+        "properties": {
+          "code": { "type": "string" },
+          "name": { "type": "string" },
+          "region": { "type": "string" }
+        }
+      },
+      "DictionaryItem": {
+        "type": "object",
+        "required": ["value", "label"],
+        "properties": {
+          "value": { "type": "string" },
+          "label": { "type": "string" }
+        }
+      },
+      "Dictionary": {
+        "type": "object",
+        "required": [
+          "auctionTypes",
+          "auctionStatuses",
+          "userTradingStatuses",
+          "primaryActions",
+          "paymentTypes",
+          "bodyTypes"
+        ],
+        "properties": {
+          "auctionTypes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DictionaryItem" }
+          },
+          "auctionStatuses": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DictionaryItem" }
+          },
+          "userTradingStatuses": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DictionaryItem" }
+          },
+          "primaryActions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DictionaryItem" }
+          },
+          "paymentTypes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DictionaryItem" }
+          },
+          "bodyTypes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DictionaryItem" }
+          }
+        }
+      },
+      "UserRole": {
+        "type": "string",
+        "enum": ["carrier", "operator", "guest"]
+      },
+      "User": {
+        "type": "object",
+        "required": ["uuid", "login", "role", "isAuthenticated"],
+        "properties": {
+          "uuid": { "type": "string" },
+          "login": { "type": "string" },
+          "fullName": { "type": "string", "nullable": true },
+          "companyName": { "type": "string", "nullable": true },
+          "inn": { "type": "string", "nullable": true },
+          "role": { "$ref": "#/components/schemas/UserRole" },
+          "isAuthenticated": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}
