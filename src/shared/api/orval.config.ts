@@ -7,15 +7,15 @@ export default defineConfig({
     },
     output: {
       mode: 'tags',
-      target: 'src/shared/api/generated',
-      schemas: 'src/shared/api/generated/schemas',
+      target: './generated',
+      schemas: './generated/schemas',
       client: 'react-query',
       httpClient: 'axios',
       override: {
         header: true,
         mutator: {
           name: 'customInstance',
-          path: './src/shared/api/custom-instance.ts',
+          path: './custom-instance.ts',
         },
       },
       mock: {

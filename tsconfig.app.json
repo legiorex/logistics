@@ -29,5 +29,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "mocks"]
+  "include": ["src"],
+  "exclude": ["src/shared/api/orval.config.ts"]
 }
