@@ -1,0 +1,29 @@
+[
+  {
+    "uuid": "usr-001",
+    "login": "carrier_001",
+    "fullName": "Иванов Иван Иванович",
+    "companyName": "ИП Иванов И.И.",
+    "inn": "770123456789",
+    "role": "carrier",
+    "isAuthenticated": true
+  },
+  {
+    "uuid": "usr-002",
+    "login": "operator_001",
+    "fullName": "Петров Петр Петрович",
+    "companyName": "ООО \"Логистик\"",
+    "inn": "7701234567",
+    "role": "operator",
+    "isAuthenticated": true
+  },
+  {
+    "uuid": "usr-003",
+    "login": "guest",
+    "fullName": null,
+    "companyName": null,
+    "inn": null,
+    "role": "guest",
+    "isAuthenticated": false
+  }
+]

@@ -1,0 +1,350 @@
+[
+  {
+    "uuid": "auc-001",
+    "requestNumber": "З-1001",
+    "type": "Up",
+    "status": "active",
+    "userTradingStatus": "Losing",
+    "hasMyBet": true,
+    "primaryAction": "edit_bet",
+    "route": {
+      "load": "Москва",
+      "unload": "Санкт-Петербург"
+    },
+    "dates": {
+      "loadDateFrom": "2026-08-01",
+      "loadDateTo": "2026-08-03",
+      "unloadDateFrom": "2026-08-02",
+      "unloadDateTo": "2026-08-04"
+    },
+    "cargo": {
+      "name": "Строительные материалы",
+      "weightKg": 5000,
+      "volumeM3": 12,
+      "bodyType": "тент"
+    },
+    "currentPrice": 126000,
+    "availablePrice": 127000,
+    "pricePerKm": 87.5,
+    "betStep": 1000,
+    "organizer": {
+      "uuid": "org-001",
+      "name": "ООО \"Логистик\"",
+      "inn": "7701234567",
+      "isContactsHidden": false,
+      "contacts": {
+        "phone": "+7 (495) 111-22-33",
+        "email": "log@example.com"
+      }
+    },
+    "points": [
+      { "type": "load", "city": "Москва", "address": "ул. Ленина, 1" },
+      { "type": "unload", "city": "Санкт-Петербург", "address": "пр. Невский, 10" }
+    ],
+    "paymentTerms": {
+      "type": "cashless",
+      "delayDays": 7,
+      "withoutVat": false
+    },
+    "trading": {
+      "canSetBet": true,
+      "hideBetsHistory": false,
+      "hidePointsAddressAndContacts": false,
+      "noViewCargoPrice": false,
+      "min": 100000,
+      "max": 200000,
+      "step": 1000
+    },
+    "isAvailable": true,
+    "isBidder": true
+  },
+  {
+    "uuid": "auc-002",
+    "requestNumber": "З-1002",
+    "type": "Down",
+    "status": "active",
+    "userTradingStatus": "Losing",
+    "hasMyBet": true,
+    "primaryAction": "edit_bet",
+    "route": {
+      "load": "Казань",
+      "unload": "Нижний Новгород"
+    },
+    "dates": {
+      "loadDateFrom": "2026-08-05",
+      "loadDateTo": "2026-08-07",
+      "unloadDateFrom": "2026-08-06",
+      "unloadDateTo": "2026-08-08"
+    },
+    "cargo": {
+      "name": "Продукты питания",
+      "weightKg": 3000,
+      "volumeM3": 18,
+      "bodyType": "рефрижератор"
+    },
+    "currentPrice": 44000,
+    "availablePrice": 43500,
+    "pricePerKm": 35.0,
+    "betStep": 500,
+    "organizer": {
+      "uuid": "org-002",
+      "name": "ООО \"Фреш-Транс\"",
+      "inn": "7707654321",
+      "isContactsHidden": true,
+      "contacts": null
+    },
+    "points": [
+      { "type": "load", "city": "Казань", "address": null },
+      { "type": "unload", "city": "Нижний Новгород", "address": null }
+    ],
+    "paymentTerms": {
+      "type": "cashless",
+      "delayDays": 14,
+      "withoutVat": true
+    },
+    "trading": {
+      "canSetBet": true,
+      "hideBetsHistory": false,
+      "hidePointsAddressAndContacts": true,
+      "noViewCargoPrice": false,
+      "min": 40000,
+      "max": 60000,
+      "step": 500
+    },
+    "isAvailable": true,
+    "isBidder": true
+  },
+  {
+    "uuid": "auc-003",
+    "requestNumber": "З-1003",
+    "type": "FixPrice",
+    "status": "completed",
+    "userTradingStatus": "Winner",
+    "hasMyBet": true,
+    "primaryAction": "view_bets",
+    "route": {
+      "load": "Новосибирск",
+      "unload": "Омск"
+    },
+    "dates": {
+      "loadDateFrom": "2026-07-28",
+      "loadDateTo": "2026-07-28",
+      "unloadDateFrom": "2026-07-29",
+      "unloadDateTo": "2026-07-29"
+    },
+    "cargo": {
+      "name": "Техника",
+      "weightKg": 800,
+      "volumeM3": 6,
+      "bodyType": "борт"
+    },
+    "currentPrice": 35000,
+    "availablePrice": 35000,
+    "pricePerKm": 42.0,
+    "betStep": null,
+    "organizer": {
+      "uuid": "org-003",
+      "name": "ООО \"Сиб-Груз\"",
+      "inn": "5401234567",
+      "isContactsHidden": false,
+      "contacts": {
+        "phone": "+7 (383) 222-33-44",
+        "email": "sib@example.com"
+      }
+    },
+    "points": [
+      { "type": "load", "city": "Новосибирск", "address": "ул. Красная, 5" },
+      { "type": "unload", "city": "Омск", "address": "ул. Ленина, 20" }
+    ],
+    "paymentTerms": {
+      "type": "cashless",
+      "delayDays": 5,
+      "withoutVat": false
+    },
+    "trading": {
+      "canSetBet": false,
+      "hideBetsHistory": false,
+      "hidePointsAddressAndContacts": false,
+      "noViewCargoPrice": true,
+      "min": null,
+      "max": null,
+      "step": null
+    },
+    "isAvailable": false,
+    "isBidder": true
+  },
+  {
+    "uuid": "auc-004",
+    "requestNumber": "З-1004",
+    "type": "Request",
+    "status": "active",
+    "userTradingStatus": null,
+    "hasMyBet": false,
+    "primaryAction": "make_bet",
+    "route": {
+      "load": "Екатеринбург",
+      "unload": "Челябинск"
+    },
+    "dates": {
+      "loadDateFrom": "2026-08-10",
+      "loadDateTo": "2026-08-12",
+      "unloadDateFrom": "2026-08-11",
+      "unloadDateTo": "2026-08-13"
+    },
+    "cargo": {
+      "name": "Металлопрокат",
+      "weightKg": 12000,
+      "volumeM3": 25,
+      "bodyType": "платформа"
+    },
+    "currentPrice": 90000,
+    "availablePrice": 90000,
+    "pricePerKm": 33.5,
+    "betStep": 2000,
+    "organizer": {
+      "uuid": "org-004",
+      "name": "ООО \"Урал-Металл\"",
+      "inn": "7401234567",
+      "isContactsHidden": false,
+      "contacts": {
+        "phone": "+7 (343) 333-44-55",
+        "email": "ural@example.com"
+      }
+    },
+    "points": [
+      { "type": "load", "city": "Екатеринбург", "address": "ул. Куйбышева, 12" },
+      { "type": "unload", "city": "Челябинск", "address": "ул. Братьев Каширных, 3" }
+    ],
+    "paymentTerms": {
+      "type": "cashless",
+      "delayDays": 10,
+      "withoutVat": false
+    },
+    "trading": {
+      "canSetBet": true,
+      "hideBetsHistory": true,
+      "hidePointsAddressAndContacts": false,
+      "noViewCargoPrice": false,
+      "min": 70000,
+      "max": 150000,
+      "step": 2000
+    },
+    "isAvailable": true,
+    "isBidder": false
+  },
+  {
+    "uuid": "auc-005",
+    "requestNumber": "З-1005",
+    "type": "Up",
+    "status": "cancelled",
+    "userTradingStatus": null,
+    "hasMyBet": false,
+    "primaryAction": null,
+    "route": {
+      "load": "Ростов-на-Дону",
+      "unload": "Воронеж"
+    },
+    "dates": {
+      "loadDateFrom": "2026-07-20",
+      "loadDateTo": "2026-07-22",
+      "unloadDateFrom": "2026-07-21",
+      "unloadDateTo": "2026-07-23"
+    },
+    "cargo": {
+      "name": "Сыпучие грузы",
+      "weightKg": 22000,
+      "volumeM3": 40,
+      "bodyType": "самосвал"
+    },
+    "currentPrice": 150000,
+    "availablePrice": null,
+    "pricePerKm": 55.0,
+    "betStep": null,
+    "organizer": {
+      "uuid": "org-005",
+      "name": "ООО \"Юг-Транс\"",
+      "inn": "6101234567",
+      "isContactsHidden": false,
+      "contacts": {
+        "phone": "+7 (863) 444-55-66",
+        "email": "yug@example.com"
+      }
+    },
+    "points": [
+      { "type": "load", "city": "Ростов-на-Дону", "address": "ул. Механизаторов, 7" },
+      { "type": "unload", "city": "Воронеж", "address": "ул. 20-летия Октября, 15" }
+    ],
+    "paymentTerms": {
+      "type": "cash",
+      "delayDays": 0,
+      "withoutVat": true
+    },
+    "trading": {
+      "canSetBet": false,
+      "hideBetsHistory": false,
+      "hidePointsAddressAndContacts": false,
+      "noViewCargoPrice": false,
+      "min": null,
+      "max": null,
+      "step": null
+    },
+    "isAvailable": false,
+    "isBidder": false
+  },
+  {
+    "uuid": "auc-006",
+    "requestNumber": "З-1006",
+    "type": "Down",
+    "status": "active",
+    "userTradingStatus": "Leading",
+    "hasMyBet": true,
+    "primaryAction": "edit_bet",
+    "route": {
+      "load": "Краснодар",
+      "unload": "Сочи"
+    },
+    "dates": {
+      "loadDateFrom": "2026-08-15",
+      "loadDateTo": "2026-08-17",
+      "unloadDateFrom": "2026-08-16",
+      "unloadDateTo": "2026-08-18"
+    },
+    "cargo": {
+      "name": "Мебель",
+      "weightKg": 1500,
+      "volumeM3": 15,
+      "bodyType": "тент"
+    },
+    "currentPrice": 78000,
+    "availablePrice": 77000,
+    "pricePerKm": 52.0,
+    "betStep": 1000,
+    "organizer": {
+      "uuid": "org-006",
+      "name": "ИП Краснов С.А.",
+      "inn": "230123456789",
+      "isContactsHidden": true,
+      "contacts": null
+    },
+    "points": [
+      { "type": "load", "city": "Краснодар", "address": null },
+      { "type": "unload", "city": "Сочи", "address": null }
+    ],
+    "paymentTerms": {
+      "type": "cashless",
+      "delayDays": 3,
+      "withoutVat": false
+    },
+    "trading": {
+      "canSetBet": true,
+      "hideBetsHistory": false,
+      "hidePointsAddressAndContacts": true,
+      "noViewCargoPrice": false,
+      "min": 60000,
+      "max": 90000,
+      "step": 1000
+    },
+    "isAvailable": true,
+    "isBidder": true
+  }
+]
