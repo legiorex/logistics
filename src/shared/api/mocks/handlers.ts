@@ -1,7 +1,5 @@
-import { http, HttpResponse } from 'msw'
+import { auctionHandlers } from './auction-handlers'
 
 export const handlers = [
-  http.get('/api/health', () => {
-    return HttpResponse.json({ status: 'ok' })
-  }),
+  ...auctionHandlers,
 ]

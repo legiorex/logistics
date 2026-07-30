@@ -1,0 +1,38 @@
+{
+  "auctionTypes": [
+    { "value": "Request", "label": "Запрос" },
+    { "value": "Up", "label": "Вверх" },
+    { "value": "Down", "label": "Вниз" },
+    { "value": "FixPrice", "label": "Фиксированная цена" }
+  ],
+  "auctionStatuses": [
+    { "value": "active", "label": "Активен" },
+    { "value": "completed", "label": "Завершён" },
+    { "value": "cancelled", "label": "Отменён" },
+    { "value": "draft", "label": "Черновик" }
+  ],
+  "userTradingStatuses": [
+    { "value": "Leading", "label": "Лидирую" },
+    { "value": "Losing", "label": "Проигрываю" },
+    { "value": "Winner", "label": "Победитель" },
+    { "value": "OutOfTrade", "label": "Вне торгов" },
+    { "value": "NotParticipant", "label": "Не участвую" }
+  ],
+  "primaryActions": [
+    { "value": "make_bet", "label": "Сделать ставку" },
+    { "value": "edit_bet", "label": "Изменить ставку" },
+    { "value": "view_bets", "label": "Смотреть ставки" }
+  ],
+  "paymentTypes": [
+    { "value": "cashless", "label": "Безналичный" },
+    { "value": "cash", "label": "Наличный" }
+  ],
+  "bodyTypes": [
+    { "value": "тент", "label": "Тент" },
+    { "value": "рефрижератор", "label": "Рефрижератор" },
+    { "value": "борт", "label": "Борт" },
+    { "value": "платформа", "label": "Платформа" },
+    { "value": "самосвал", "label": "Самосвал" },
+    { "value": "изотерм", "label": "Изотерм" }
+  ]
+}
