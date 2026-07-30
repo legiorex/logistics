@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
+import { AuctionDetailPage } from '@/pages/auction-detail'
+
 export const Route = createFileRoute('/auctions/$uuid')({
-  component: () => <div>Auction detail</div>,
+  component: AuctionDetailPage,
 })

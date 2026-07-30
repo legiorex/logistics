@@ -19,4 +19,12 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Файлы роутов TanStack Router экспортируют и Route, и компоненты;
+    // shadcn/ui компоненты экспортируют cva-variants и хуки
+    files: ['src/routes/**/*.tsx', 'src/shared/ui/**/*.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
