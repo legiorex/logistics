@@ -6,7 +6,7 @@ import { Skeleton } from '@/shared/ui/skeleton'
 import { AuctionDetailsWidget } from '@/widgets/auction-details'
 
 export function AuctionDetailPage() {
-  const { uuid } = useParams({ from: '/auctions/$uuid' })
+  const { uuid } = useParams({ from: '/auctions/$uuid/' })
   const { data, isPending, isError, refetch } = useGetAuctionByUuid(uuid)
 
   if (isPending) {

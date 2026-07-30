@@ -1,7 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 
-import { AuctionDetailPage } from '@/pages/auction-detail'
-
+// Layout-роут: детальная страница живёт в index-роуте,
+// bets и place-bet — вложенные и рендерятся через Outlet
 export const Route = createFileRoute('/auctions/$uuid')({
-  component: AuctionDetailPage,
+  component: Outlet,
 })
