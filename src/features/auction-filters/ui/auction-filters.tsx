@@ -49,14 +49,6 @@ export function AuctionFilters() {
     })
   }
 
-  const toggleStatus = (status: AuctionStatus) => {
-    const current = search.statuses ?? []
-    const next = current.includes(status)
-      ? current.filter((item) => item !== status)
-      : [...current, status]
-    updateFilter('statuses', next.length > 0 ? next : undefined)
-  }
-
   const resetFilters = () => {
     setSearchValue('')
     setCargoNumValue('')
@@ -93,28 +85,17 @@ export function AuctionFilters() {
         </FilterField>
       </div>
 
-      <FilterField label="Статус">
-        <div className="flex flex-wrap gap-2">
-          {dictionaries?.auctionStatuses.map((item) => {
-            const active = search.statuses?.includes(item.value as AuctionStatus)
-            return (
-              <Badge
-                key={item.value}
-                asChild
-                variant={active ? 'default' : 'outline'}
-                className="cursor-pointer"
-              >
-                <button
-                  type="button"
-                  onClick={() => toggleStatus(item.value as AuctionStatus)}
-                >
-                  {item.label}
-                </button>
-              </Badge>
-            )
-          })}
-        </div>
-      </FilterField>
+      <StatusFilter
+        statuses={search.statuses}
+        options={dictionaries?.auctionStatuses}
+        onToggle={(status) => {
+          const current = search.statuses ?? []
+          const next = current.includes(status)
+            ? current.filter((item) => item !== status)
+            : [...current, status]
+          updateFilter('statuses', next.length > 0 ? next : undefined)
+        }}
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <FilterSelect
@@ -145,91 +126,168 @@ export function AuctionFilters() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <FilterField label="Погрузка от" htmlFor="filter-load-date-from">
-          <Input
-            id="filter-load-date-from"
-            type="date"
-            value={search.loadDateFrom ?? ''}
-            onChange={(event) =>
-              updateFilter('loadDateFrom', event.target.value || undefined)
-            }
-          />
-        </FilterField>
-        <FilterField label="Погрузка до" htmlFor="filter-load-date-to">
-          <Input
-            id="filter-load-date-to"
-            type="date"
-            value={search.loadDateTo ?? ''}
-            onChange={(event) =>
-              updateFilter('loadDateTo', event.target.value || undefined)
-            }
-          />
-        </FilterField>
-        <FilterField label="Цена от" htmlFor="filter-price-from">
-          <Input
-            id="filter-price-from"
-            type="number"
-            min={0}
-            inputMode="numeric"
-            value={search.priceFrom ?? ''}
-            onChange={(event) =>
-              updateFilter(
-                'priceFrom',
-                event.target.value === '' ? undefined : event.target.valueAsNumber,
-              )
-            }
-          />
-        </FilterField>
-        <FilterField label="Цена до" htmlFor="filter-price-to">
-          <Input
-            id="filter-price-to"
-            type="number"
-            min={0}
-            inputMode="numeric"
-            value={search.priceTo ?? ''}
-            onChange={(event) =>
-              updateFilter(
-                'priceTo',
-                event.target.value === '' ? undefined : event.target.valueAsNumber,
-              )
-            }
-          />
-        </FilterField>
-      </div>
+      <DatePriceFilters
+        loadDateFrom={search.loadDateFrom}
+        loadDateTo={search.loadDateTo}
+        priceFrom={search.priceFrom}
+        priceTo={search.priceTo}
+        onChange={updateFilter}
+      />
 
-      <div className="flex flex-wrap gap-6">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="filter-is-available"
-            checked={search.isAvailable ?? false}
-            onCheckedChange={(checked) =>
-              updateFilter('isAvailable', checked === true ? true : undefined)
-            }
-          />
-          <Label htmlFor="filter-is-available" className="cursor-pointer">
-            Только доступные
-          </Label>
-        </div>
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="filter-is-bidder"
-            checked={search.isBidder ?? false}
-            onCheckedChange={(checked) =>
-              updateFilter('isBidder', checked === true ? true : undefined)
-            }
-          />
-          <Label htmlFor="filter-is-bidder" className="cursor-pointer">
-            Только с моими ставками
-          </Label>
-        </div>
-      </div>
+      <CheckboxFilters
+        isAvailable={search.isAvailable}
+        isBidder={search.isBidder}
+        onChange={updateFilter}
+      />
 
       {hasFilters && (
         <Button variant="ghost" size="sm" onClick={resetFilters} className="self-start">
           Сбросить фильтры
         </Button>
       )}
+    </div>
+  )
+}
+
+function StatusFilter({
+  statuses,
+  options,
+  onToggle,
+}: {
+  statuses: AuctionStatus[] | undefined
+  options: { value: string; label: string }[] | undefined
+  onToggle: (status: AuctionStatus) => void
+}) {
+  return (
+    <FilterField label="Статус">
+      <div className="flex flex-wrap gap-2">
+        {options?.map((item) => {
+          const active = statuses?.includes(item.value as AuctionStatus)
+          return (
+            <Badge
+              key={item.value}
+              asChild
+              variant={active ? 'default' : 'outline'}
+              className="cursor-pointer"
+            >
+              <button
+                type="button"
+                onClick={() => onToggle(item.value as AuctionStatus)}
+              >
+                {item.label}
+              </button>
+            </Badge>
+          )
+        })}
+      </div>
+    </FilterField>
+  )
+}
+
+function DatePriceFilters({
+  loadDateFrom,
+  loadDateTo,
+  priceFrom,
+  priceTo,
+  onChange,
+}: {
+  loadDateFrom: string | undefined
+  loadDateTo: string | undefined
+  priceFrom: number | undefined
+  priceTo: number | undefined
+  onChange: <K extends keyof AuctionListSearch>(key: K, value: AuctionListSearch[K]) => void
+}) {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+      <FilterField label="Погрузка от" htmlFor="filter-load-date-from">
+        <Input
+          id="filter-load-date-from"
+          type="date"
+          value={loadDateFrom ?? ''}
+          onChange={(event) =>
+            onChange('loadDateFrom', event.target.value || undefined)
+          }
+        />
+      </FilterField>
+      <FilterField label="Погрузка до" htmlFor="filter-load-date-to">
+        <Input
+          id="filter-load-date-to"
+          type="date"
+          value={loadDateTo ?? ''}
+          onChange={(event) =>
+            onChange('loadDateTo', event.target.value || undefined)
+          }
+        />
+      </FilterField>
+      <FilterField label="Цена от" htmlFor="filter-price-from">
+        <Input
+          id="filter-price-from"
+          type="number"
+          min={0}
+          inputMode="numeric"
+          value={priceFrom ?? ''}
+          onChange={(event) =>
+            onChange(
+              'priceFrom',
+              event.target.value === '' ? undefined : event.target.valueAsNumber,
+            )
+          }
+        />
+      </FilterField>
+      <FilterField label="Цена до" htmlFor="filter-price-to">
+        <Input
+          id="filter-price-to"
+          type="number"
+          min={0}
+          inputMode="numeric"
+          value={priceTo ?? ''}
+          onChange={(event) =>
+            onChange(
+              'priceTo',
+              event.target.value === '' ? undefined : event.target.valueAsNumber,
+            )
+          }
+        />
+      </FilterField>
+    </div>
+  )
+}
+
+function CheckboxFilters({
+  isAvailable,
+  isBidder,
+  onChange,
+}: {
+  isAvailable: boolean | undefined
+  isBidder: boolean | undefined
+  onChange: <K extends keyof AuctionListSearch>(key: K, value: AuctionListSearch[K]) => void
+}) {
+  return (
+    <div className="flex flex-wrap gap-6">
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="filter-is-available"
+          checked={isAvailable ?? false}
+          onCheckedChange={(checked) =>
+            onChange('isAvailable', checked === true ? true : undefined)
+          }
+        />
+        <Label htmlFor="filter-is-available" className="cursor-pointer">
+          Только доступные
+        </Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="filter-is-bidder"
+          checked={isBidder ?? false}
+          onCheckedChange={(checked) =>
+            onChange('isBidder', checked === true ? true : undefined)
+          }
+        />
+        <Label htmlFor="filter-is-bidder" className="cursor-pointer">
+          Только с моими ставками
+        </Label>
+      </div>
     </div>
   )
 }

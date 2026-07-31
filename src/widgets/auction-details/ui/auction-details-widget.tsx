@@ -45,30 +45,6 @@ export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
       .catch(() => toast.error('Не удалось скопировать'))
   }, [copy])
 
-  const contactsRows = useMemo(() => {
-    if (!showContacts || !auction.organizer.contacts) {
-      return <Row label="Контакты" value="Скрыты организатором" />
-    }
-    const phone = auction.organizer.contacts.phone ?? '—'
-    const email = auction.organizer.contacts.email ?? '—'
-    return (
-      <>
-        <CopyableRow
-          label="Телефон"
-          value={phone}
-          copied={copiedField === 'Телефон'}
-          onCopy={() => handleCopy(phone, 'Телефон')}
-        />
-        <CopyableRow
-          label="Email"
-          value={email}
-          copied={copiedField === 'Email'}
-          onCopy={() => handleCopy(email, 'Email')}
-        />
-      </>
-    )
-  }, [showContacts, auction.organizer.contacts, copiedField, handleCopy])
-
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-3">
@@ -95,82 +71,165 @@ export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
       </section>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Section title="Торги">
-          <Row label="Текущая цена" value={showPrice ? formatPrice(auction.currentPrice) : 'Скрыта'} />
-          <Row label="Доступная цена" value={showPrice ? formatPrice(auction.availablePrice) : '—'} />
-          <Row label="Цена за км" value={showPrice ? formatPrice(auction.pricePerKm) : '—'} />
-          <Row label="Мин. цена" value={showPrice ? formatPrice(auction.trading.min) : '—'} />
-          <Row label="Макс. цена" value={showPrice ? formatPrice(auction.trading.max) : '—'} />
-          <Row
-            label="Шаг ставки"
-            value={showPrice ? formatPrice(auction.trading.step ?? auction.betStep) : '—'}
-          />
-          <Row
-            label="Моя ставка"
-            value={
-              auction.hasMyBet
-                ? getDictLabel(
-                    dictionaries?.userTradingStatuses,
-                    auction.userTradingStatus ?? 'NotParticipant',
-                  )
-                : 'Нет'
-            }
-          />
-        </Section>
-
-        <Section title="Груз и ТС">
-          <Row label="Груз" value={auction.cargo.name} />
-          <Row label="Вес" value={formatWeight(auction.cargo.weightKg)} />
-          <Row label="Объём" value={formatVolume(auction.cargo.volumeM3)} />
-          <Row
-            label="Тип кузова"
-            value={getDictLabel(dictionaries?.bodyTypes, auction.cargo.bodyType)}
-          />
-          <Row
-            label="Погрузка"
-            value={formatDateRange(auction.dates.loadDateFrom, auction.dates.loadDateTo)}
-          />
-          <Row
-            label="Выгрузка"
-            value={formatDateRange(auction.dates.unloadDateFrom, auction.dates.unloadDateTo)}
-          />
-        </Section>
-
-        <Section title="Маршрут">
-          <ul className="flex flex-col gap-2">
-            {auction.points.map((point, index) => (
-              <li key={index} className="flex flex-col">
-                <span className="text-sm font-medium">
-                  {point.type === 'load' ? 'Погрузка' : 'Выгрузка'} — {point.city}
-                </span>
-                {!trading.hidePointsAddressAndContacts && point.address && (
-                  <span className="text-sm text-muted-foreground">
-                    {point.address}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </Section>
-
-        <Section title="Организатор и оплата">
-          <Row label="Организатор" value={auction.organizer.name} />
-          <CopyableRow
-            label="ИНН"
-            value={auction.organizer.inn}
-            copied={copiedField === 'ИНН'}
-            onCopy={() => handleCopy(auction.organizer.inn, 'ИНН')}
-          />
-          {contactsRows}
-          <Row
-            label="Тип оплаты"
-            value={getDictLabel(dictionaries?.paymentTypes, auction.paymentTerms.type)}
-          />
-          <Row label="Отсрочка" value={`${auction.paymentTerms.delayDays} дн.`} />
-          <Row label="НДС" value={auction.paymentTerms.withoutVat ? 'Без НДС' : 'С НДС'} />
-        </Section>
+        <TradingSection auction={auction} dictionaries={dictionaries} showPrice={showPrice} />
+        <CargoSection auction={auction} dictionaries={dictionaries} />
+        <RouteSection auction={auction} hideAddresses={trading.hidePointsAddressAndContacts} />
+        <OrganizerSection
+          auction={auction}
+          dictionaries={dictionaries}
+          showContacts={showContacts}
+          copiedField={copiedField}
+          onCopy={handleCopy}
+        />
       </div>
     </div>
+  )
+}
+
+function TradingSection({
+  auction,
+  dictionaries,
+  showPrice,
+}: {
+  auction: Auction
+  dictionaries: ReturnType<typeof useDictionaries>['data']
+  showPrice: boolean
+}) {
+  return (
+    <Section title="Торги">
+      <Row label="Текущая цена" value={showPrice ? formatPrice(auction.currentPrice) : 'Скрыта'} />
+      <Row label="Доступная цена" value={showPrice ? formatPrice(auction.availablePrice) : '—'} />
+      <Row label="Цена за км" value={showPrice ? formatPrice(auction.pricePerKm) : '—'} />
+      <Row label="Мин. цена" value={showPrice ? formatPrice(auction.trading.min) : '—'} />
+      <Row label="Макс. цена" value={showPrice ? formatPrice(auction.trading.max) : '—'} />
+      <Row
+        label="Шаг ставки"
+        value={showPrice ? formatPrice(auction.trading.step ?? auction.betStep) : '—'}
+      />
+      <Row
+        label="Моя ставка"
+        value={
+          auction.hasMyBet
+            ? getDictLabel(
+                dictionaries?.userTradingStatuses,
+                auction.userTradingStatus ?? 'NotParticipant',
+              )
+            : 'Нет'
+        }
+      />
+    </Section>
+  )
+}
+
+function CargoSection({
+  auction,
+  dictionaries,
+}: {
+  auction: Auction
+  dictionaries: ReturnType<typeof useDictionaries>['data']
+}) {
+  return (
+    <Section title="Груз и ТС">
+      <Row label="Груз" value={auction.cargo.name} />
+      <Row label="Вес" value={formatWeight(auction.cargo.weightKg)} />
+      <Row label="Объём" value={formatVolume(auction.cargo.volumeM3)} />
+      <Row
+        label="Тип кузова"
+        value={getDictLabel(dictionaries?.bodyTypes, auction.cargo.bodyType)}
+      />
+      <Row
+        label="Погрузка"
+        value={formatDateRange(auction.dates.loadDateFrom, auction.dates.loadDateTo)}
+      />
+      <Row
+        label="Выгрузка"
+        value={formatDateRange(auction.dates.unloadDateFrom, auction.dates.unloadDateTo)}
+      />
+    </Section>
+  )
+}
+
+function RouteSection({
+  auction,
+  hideAddresses,
+}: {
+  auction: Auction
+  hideAddresses: boolean
+}) {
+  return (
+    <Section title="Маршрут">
+      <ul className="flex flex-col gap-2">
+        {auction.points.map((point, index) => (
+          <li key={index} className="flex flex-col">
+            <span className="text-sm font-medium">
+              {point.type === 'load' ? 'Погрузка' : 'Выгрузка'} — {point.city}
+            </span>
+            {!hideAddresses && point.address && (
+              <span className="text-sm text-muted-foreground">
+                {point.address}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )
+}
+
+function OrganizerSection({
+  auction,
+  dictionaries,
+  showContacts,
+  copiedField,
+  onCopy,
+}: {
+  auction: Auction
+  dictionaries: ReturnType<typeof useDictionaries>['data']
+  showContacts: boolean
+  copiedField: string | null
+  onCopy: (value: string, label: string) => void
+}) {
+  const contactsRows = useMemo(() => {
+    if (!showContacts || !auction.organizer.contacts) {
+      return <Row label="Контакты" value="Скрыты организатором" />
+    }
+    const phone = auction.organizer.contacts.phone ?? '—'
+    const email = auction.organizer.contacts.email ?? '—'
+    return (
+      <>
+        <CopyableRow
+          label="Телефон"
+          value={phone}
+          copied={copiedField === 'Телефон'}
+          onCopy={() => onCopy(phone, 'Телефон')}
+        />
+        <CopyableRow
+          label="Email"
+          value={email}
+          copied={copiedField === 'Email'}
+          onCopy={() => onCopy(email, 'Email')}
+        />
+      </>
+    )
+  }, [showContacts, auction.organizer.contacts, copiedField, onCopy])
+
+  return (
+    <Section title="Организатор и оплата">
+      <Row label="Организатор" value={auction.organizer.name} />
+      <CopyableRow
+        label="ИНН"
+        value={auction.organizer.inn}
+        copied={copiedField === 'ИНН'}
+        onCopy={() => onCopy(auction.organizer.inn, 'ИНН')}
+      />
+      {contactsRows}
+      <Row
+        label="Тип оплаты"
+        value={getDictLabel(dictionaries?.paymentTypes, auction.paymentTerms.type)}
+      />
+      <Row label="Отсрочка" value={`${auction.paymentTerms.delayDays} дн.`} />
+      <Row label="НДС" value={auction.paymentTerms.withoutVat ? 'Без НДС' : 'С НДС'} />
+    </Section>
   )
 }
 

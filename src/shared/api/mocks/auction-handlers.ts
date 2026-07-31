@@ -1,5 +1,5 @@
 import { formatISO, getTime } from 'date-fns'
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
 
 import type { AuctionListRequest } from '@/shared/api/generated/schemas'
 import {
@@ -18,6 +18,29 @@ import { sortBetsByPrice } from './lib/sort-bets'
 
 const CURRENT_USER = db.users.find((u: { role: string }) => u.role === 'carrier')
 
+type ValidationError = { message: string; code: string }
+
+// Валидация цены ставки: positive, min, max, step
+function validateBetPrice(
+  price: number,
+  trading: { min: number | null; max: number | null; step: number | null },
+): ValidationError | null {
+  if (!price || !isPositiveMoney(price)) {
+    return { message: 'Цена обязательна и должна быть больше 0', code: 'INVALID_PRICE' }
+  }
+  if (trading.min !== null && isLessThan(price, trading.min)) {
+    return { message: `Цена должна быть не меньше ${trading.min}`, code: 'PRICE_TOO_LOW' }
+  }
+  if (trading.max !== null && isGreaterThan(price, trading.max)) {
+    return { message: `Цена должна быть не больше ${trading.max}`, code: 'PRICE_TOO_HIGH' }
+  }
+  if (!isPriceValidForStep(price, trading.step, trading.min)) {
+    return { message: `Цена должна быть кратна шагу ${trading.step}`, code: 'INVALID_STEP' }
+  }
+  return null
+}
+
+// Пересчёт мест ставок по цене с учётом типа аукциона
 function recalculatePlaces(auctionUuid: string) {
   const auction = db.auctions.find((a) => a.uuid === auctionUuid)
   if (!auction) return
@@ -32,18 +55,14 @@ function recalculatePlaces(auctionUuid: string) {
   })
 }
 
-function updateAuctionState(auctionUuid: string) {
-  const auction = db.auctions.find((a) => a.uuid === auctionUuid)
-  if (!auction) return
-
+// Обновление цен аукциона в зависимости от типа и лучших ставок
+function updateAuctionPrices(auction: (typeof db.auctions)[number]) {
   const auctionBets = sortBetsByPrice(
-    db.bets.filter((b) => b.auctionUuid === auctionUuid && !b.isCancelled),
+    db.bets.filter((b) => b.auctionUuid === auction.uuid && !b.isCancelled),
     auction.type,
   )
 
   if (auctionBets.length === 0) return
-
-  const myBet = auctionBets.find((b) => b.isMyBet)
 
   if (auction.type === 'Up') {
     auction.currentPrice = auctionBets[0].price
@@ -61,6 +80,13 @@ function updateAuctionState(auctionUuid: string) {
     auction.currentPrice = auctionBets[0].price
     auction.availablePrice = auctionBets[0].price
   }
+}
+
+// Обновление торгового статуса пользователя и primaryAction
+function updateUserTradingStatus(auction: typeof db.auctions[number]) {
+  const myBet = db.bets.find(
+    (b) => b.auctionUuid === auction.uuid && b.isMyBet && !b.isCancelled,
+  )
 
   if (myBet) {
     auction.hasMyBet = true
@@ -76,6 +102,15 @@ function updateAuctionState(auctionUuid: string) {
     auction.userTradingStatus = null
     auction.primaryAction = auction.trading.canSetBet ? 'make_bet' : null
   }
+}
+
+// Полное обновление состояния аукциона после изменения ставок
+function updateAuctionState(auctionUuid: string) {
+  const auction = db.auctions.find((a) => a.uuid === auctionUuid)
+  if (!auction) return
+
+  updateAuctionPrices(auction)
+  updateUserTradingStatus(auction)
 }
 
 export const auctionHandlers = [
@@ -136,41 +171,9 @@ export const auctionHandlers = [
       )
     }
 
-    if (!body.price || !isPositiveMoney(body.price)) {
-      return HttpResponse.json(
-        { message: 'Цена обязательна и должна быть больше 0', code: 'INVALID_PRICE' },
-        { status: 422 },
-      )
-    }
-
-    if (auction.trading.min !== null && isLessThan(body.price, auction.trading.min)) {
-      return HttpResponse.json(
-        {
-          message: `Цена должна быть не меньше ${auction.trading.min}`,
-          code: 'PRICE_TOO_LOW',
-        },
-        { status: 422 },
-      )
-    }
-
-    if (auction.trading.max !== null && isGreaterThan(body.price, auction.trading.max)) {
-      return HttpResponse.json(
-        {
-          message: `Цена должна быть не больше ${auction.trading.max}`,
-          code: 'PRICE_TOO_HIGH',
-        },
-        { status: 422 },
-      )
-    }
-
-    if (!isPriceValidForStep(body.price, auction.trading.step, auction.trading.min)) {
-      return HttpResponse.json(
-        {
-          message: `Цена должна быть кратна шагу ${auction.trading.step}`,
-          code: 'INVALID_STEP',
-        },
-        { status: 422 },
-      )
+    const validationError = validateBetPrice(body.price, auction.trading)
+    if (validationError) {
+      return HttpResponse.json(validationError, { status: 422 })
     }
 
     const existingMyBet = findMyBet(auctionUuid)
