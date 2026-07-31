@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useCopyToClipboard } from 'usehooks-ts'
 import { Check, Copy } from 'lucide-react'
@@ -34,7 +34,7 @@ export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
     !trading.hidePointsAddressAndContacts && !auction.organizer.isContactsHidden
   const showPrice = isPriceVisible(auction)
 
-  const handleCopy = (value: string, label: string) => {
+  const handleCopy = useCallback((value: string, label: string) => {
     if (!value || value === '—') return
     copy(value)
       .then(() => {
@@ -43,7 +43,31 @@ export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
         setTimeout(() => setCopiedField(null), 2000)
       })
       .catch(() => toast.error('Не удалось скопировать'))
-  }
+  }, [copy])
+
+  const contactsRows = useMemo(() => {
+    if (!showContacts || !auction.organizer.contacts) {
+      return <Row label="Контакты" value="Скрыты организатором" />
+    }
+    const phone = auction.organizer.contacts.phone ?? '—'
+    const email = auction.organizer.contacts.email ?? '—'
+    return (
+      <>
+        <CopyableRow
+          label="Телефон"
+          value={phone}
+          copied={copiedField === 'Телефон'}
+          onCopy={() => handleCopy(phone, 'Телефон')}
+        />
+        <CopyableRow
+          label="Email"
+          value={email}
+          copied={copiedField === 'Email'}
+          onCopy={() => handleCopy(email, 'Email')}
+        />
+      </>
+    )
+  }, [showContacts, auction.organizer.contacts, copiedField, handleCopy])
 
   return (
     <div className="flex flex-col gap-6">
@@ -137,30 +161,7 @@ export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
             copied={copiedField === 'ИНН'}
             onCopy={() => handleCopy(auction.organizer.inn, 'ИНН')}
           />
-          {showContacts && auction.organizer.contacts ? (
-            (() => {
-              const phone = auction.organizer.contacts.phone ?? '—'
-              const email = auction.organizer.contacts.email ?? '—'
-              return (
-                <>
-                  <CopyableRow
-                    label="Телефон"
-                    value={phone}
-                    copied={copiedField === 'Телефон'}
-                    onCopy={() => handleCopy(phone, 'Телефон')}
-                  />
-                  <CopyableRow
-                    label="Email"
-                    value={email}
-                    copied={copiedField === 'Email'}
-                    onCopy={() => handleCopy(email, 'Email')}
-                  />
-                </>
-              )
-            })()
-          ) : (
-            <Row label="Контакты" value="Скрыты организатором" />
-          )}
+          {contactsRows}
           <Row
             label="Тип оплаты"
             value={getDictLabel(dictionaries?.paymentTypes, auction.paymentTerms.type)}
@@ -201,6 +202,31 @@ function Row({ label, value }: { label: string; value: string }) {
   )
 }
 
+function CopyButton({
+  copied,
+  onCopy,
+  label,
+}: {
+  copied: boolean
+  onCopy: () => void
+  label: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onCopy}
+      className="text-muted-foreground transition-colors hover:text-foreground"
+      aria-label={`Скопировать ${label}`}
+    >
+      {copied ? (
+        <Check className="size-3.5 text-green-600" />
+      ) : (
+        <Copy className="size-3.5" />
+      )}
+    </button>
+  )
+}
+
 function CopyableRow({
   label,
   value,
@@ -218,18 +244,7 @@ function CopyableRow({
       <dd className="flex items-center gap-1.5 text-right font-medium">
         {value}
         {value !== '—' && (
-          <button
-            type="button"
-            onClick={onCopy}
-            className="text-muted-foreground transition-colors hover:text-foreground"
-            aria-label={`Скопировать ${label}`}
-          >
-            {copied ? (
-              <Check className="size-3.5 text-green-600" />
-            ) : (
-              <Copy className="size-3.5" />
-            )}
-          </button>
+          <CopyButton copied={copied} onCopy={onCopy} label={label} />
         )}
       </dd>
     </div>
