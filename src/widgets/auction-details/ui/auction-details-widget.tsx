@@ -1,4 +1,8 @@
+import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { useCopyToClipboard } from 'usehooks-ts'
+import { Check, Copy } from 'lucide-react'
+import { toast } from 'sonner'
 
 import type { Auction } from '@/shared/api/generated/schemas'
 import { Badge } from '@/shared/ui/badge'
@@ -26,9 +30,22 @@ import {
 export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
   const { data: dictionaries } = useDictionaries()
   const { trading } = auction
+  const [, copy] = useCopyToClipboard()
+  const [copiedField, setCopiedField] = useState<string | null>(null)
   const showContacts =
     !trading.hidePointsAddressAndContacts && !auction.organizer.isContactsHidden
   const showPrice = !trading.noViewCargoPrice
+
+  const handleCopy = (value: string, label: string) => {
+    if (!value || value === '—') return
+    copy(value)
+      .then(() => {
+        setCopiedField(label)
+        toast.success(`Скопировано: ${label}`)
+        setTimeout(() => setCopiedField(null), 2000)
+      })
+      .catch(() => toast.error('Не удалось скопировать'))
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -123,12 +140,33 @@ export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
 
         <Section title="Организатор и оплата">
           <Row label="Организатор" value={auction.organizer.name} />
-          <Row label="ИНН" value={auction.organizer.inn} />
+          <CopyableRow
+            label="ИНН"
+            value={auction.organizer.inn}
+            copied={copiedField === 'ИНН'}
+            onCopy={() => handleCopy(auction.organizer.inn, 'ИНН')}
+          />
           {showContacts && auction.organizer.contacts ? (
-            <>
-              <Row label="Телефон" value={auction.organizer.contacts.phone ?? '—'} />
-              <Row label="Email" value={auction.organizer.contacts.email ?? '—'} />
-            </>
+            (() => {
+              const phone = auction.organizer.contacts.phone ?? '—'
+              const email = auction.organizer.contacts.email ?? '—'
+              return (
+                <>
+                  <CopyableRow
+                    label="Телефон"
+                    value={phone}
+                    copied={copiedField === 'Телефон'}
+                    onCopy={() => handleCopy(phone, 'Телефон')}
+                  />
+                  <CopyableRow
+                    label="Email"
+                    value={email}
+                    copied={copiedField === 'Email'}
+                    onCopy={() => handleCopy(email, 'Email')}
+                  />
+                </>
+              )
+            })()
           ) : (
             <Row label="Контакты" value="Скрыты организатором" />
           )}
@@ -168,6 +206,41 @@ function Row({ label, value }: { label: string; value: string }) {
     <div className="flex items-baseline justify-between gap-4">
       <dt className="text-muted-foreground">{label}</dt>
       <dd className="text-right font-medium">{value}</dd>
+    </div>
+  )
+}
+
+function CopyableRow({
+  label,
+  value,
+  copied,
+  onCopy,
+}: {
+  label: string
+  value: string
+  copied: boolean
+  onCopy: () => void
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-4">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="flex items-center gap-1.5 text-right font-medium">
+        {value}
+        {value !== '—' && (
+          <button
+            type="button"
+            onClick={onCopy}
+            className="text-muted-foreground transition-colors hover:text-foreground"
+            aria-label={`Скопировать ${label}`}
+          >
+            {copied ? (
+              <Check className="size-3.5 text-green-600" />
+            ) : (
+              <Copy className="size-3.5" />
+            )}
+          </button>
+        )}
+      </dd>
     </div>
   )
 }

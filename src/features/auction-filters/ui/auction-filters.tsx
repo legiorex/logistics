@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useDebounceValue } from 'usehooks-ts'
 
 import { useGetCities } from '@/shared/api/generated/cities'
 import { Button } from '@/shared/ui/button'
@@ -26,22 +27,20 @@ export function AuctionFilters() {
   const { data: cities } = useGetCities({ query: { staleTime: Infinity } })
 
   const [searchValue, setSearchValue] = useState(search.search ?? '')
+  const [debouncedSearchValue] = useDebounceValue(searchValue, SEARCH_DEBOUNCE_MS)
 
   // Дебаунс текстового поиска, чтобы не дёргать API на каждый символ
   useEffect(() => {
-    if (searchValue === (search.search ?? '')) return
-    const timer = setTimeout(() => {
-      void navigate({
-        search: (prev: AuctionListSearch) => ({
-          ...prev,
-          search: searchValue || undefined,
-          page: 1,
-        }),
-        replace: true,
-      })
-    }, SEARCH_DEBOUNCE_MS)
-    return () => clearTimeout(timer)
-  }, [searchValue, search.search, navigate])
+    if (debouncedSearchValue === (search.search ?? '')) return
+    void navigate({
+      search: (prev: AuctionListSearch) => ({
+        ...prev,
+        search: debouncedSearchValue || undefined,
+        page: 1,
+      }),
+      replace: true,
+    })
+  }, [debouncedSearchValue, search.search, navigate])
 
   const updateFilter = (
     key: 'status' | 'type' | 'city',

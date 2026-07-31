@@ -1,4 +1,5 @@
 import { Link, useParams } from '@tanstack/react-router'
+import { useDocumentTitle } from 'usehooks-ts'
 
 import { useGetAuctionByUuid } from '@/shared/api/generated/auctions'
 import { Button } from '@/shared/ui/button'
@@ -8,6 +9,10 @@ import { BetsListWidget } from '@/widgets/bets-list'
 export function AuctionBetsPage() {
   const { uuid } = useParams({ from: '/auctions/$uuid/bets' })
   const { data: auction, isPending, isError, refetch } = useGetAuctionByUuid(uuid)
+
+  useDocumentTitle(
+    auction ? `Ставки — Заявка № ${auction.requestNumber} — Грузовые аукционы` : 'Ставки — Грузовые аукционы',
+  )
 
   if (isPending) {
     return (
