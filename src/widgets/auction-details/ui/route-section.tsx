@@ -11,8 +11,8 @@ export function RouteSection({
   return (
     <Section title="Маршрут">
       <ul className="flex flex-col gap-2">
-        {auction.points.map((point, index) => (
-          <li key={index} className="flex flex-col">
+        {auction.points.map((point) => (
+          <li key={`${point.type}-${point.city}`} className="flex flex-col">
             <span className="text-sm font-medium">
               {point.type === 'load' ? 'Погрузка' : 'Выгрузка'} — {point.city}
             </span>
