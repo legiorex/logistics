@@ -1,3 +1,4 @@
+import { formatISO, getTime } from 'date-fns'
 import { http, HttpResponse } from 'msw'
 
 import {
@@ -227,10 +228,10 @@ export const auctionHandlers = [
     if (existingMyBet) {
       existingMyBet.price = body.price
       existingMyBet.priceWithVat = calculatePriceWithVat(body.price, auction.paymentTerms.withoutVat)
-      existingMyBet.createdAt = new Date().toISOString()
+      existingMyBet.createdAt = formatISO(new Date())
     } else {
       const newBet: Bet = {
-        uuid: `bet-${Date.now()}`,
+        uuid: `bet-${getTime(new Date())}`,
         auctionUuid,
         carrier: CURRENT_USER?.companyName ?? 'ИП Иванов И.И.',
         price: body.price,
@@ -239,7 +240,7 @@ export const auctionHandlers = [
         isWinner: false,
         isCancelled: false,
         cancelReason: null,
-        createdAt: new Date().toISOString(),
+        createdAt: formatISO(new Date()),
         isMyBet: true,
       }
       db.bets.push(newBet)

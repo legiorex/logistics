@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { format, isValid, parseISO } from 'date-fns'
 
 import { moneyFormat } from './money'
 
@@ -16,22 +17,16 @@ export function formatNumber(value: number | null | undefined): string {
 
 export function formatDate(value: string | null | undefined): string {
   if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
-  return date.toLocaleDateString('ru-RU')
+  const date = parseISO(value)
+  if (!isValid(date)) return '—'
+  return format(date, 'dd.MM.yyyy')
 }
 
 export function formatDateTime(value: string | null | undefined): string {
   if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
-  return date.toLocaleString('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  const date = parseISO(value)
+  if (!isValid(date)) return '—'
+  return format(date, 'dd.MM.yyyy HH:mm')
 }
 
 export function formatDateRange(from: string, to: string): string {
