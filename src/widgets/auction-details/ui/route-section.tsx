@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import type { Auction } from '@/shared/api/generated/schemas'
 import { Section } from './section'
 
@@ -6,7 +8,7 @@ type RouteSectionProps = {
   hideAddresses: boolean
 }
 
-export function RouteSection({
+export const RouteSection = memo(function RouteSection({
   auction,
   hideAddresses,
 }: RouteSectionProps) {
@@ -28,4 +30,4 @@ export function RouteSection({
       </ul>
     </Section>
   )
-}
+})

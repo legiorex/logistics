@@ -1,10 +1,9 @@
 import { type ChangeEvent, useCallback, useMemo } from 'react'
 
-import { useGetCities } from '@/shared/api/generated/cities'
 import type { AuctionStatus } from '@/shared/api/generated/schemas'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
-import { useDictionaries } from '@/entities/dictionary'
+import { useCities, useDictionaries } from '@/entities/dictionary'
 import { useFiltersStore } from '../model/filters-store'
 import { useDebouncedFilter } from '../model/use-debounced-filter'
 import { toApiFilters } from '../model/search-params'
@@ -23,8 +22,10 @@ export function AuctionFilters() {
   const filters = useFiltersStore((s) => s.filters)
   const setFilter = useFiltersStore((s) => s.setFilter)
   const resetFiltersStore = useFiltersStore((s) => s.resetFilters)
+
+  const updateFilter = setFilter
   const { data: dictionaries } = useDictionaries()
-  const { data: cities } = useGetCities({ query: { staleTime: Infinity } })
+  const { data: cities } = useCities()
 
   const { value: searchValue, setValue: setSearchValue } = useDebouncedFilter(
     'search',
@@ -35,16 +36,6 @@ export function AuctionFilters() {
     'cargoNum',
     filters.cargoNum ?? '',
     SEARCH_DEBOUNCE_MS,
-  )
-
-  const updateFilter = useCallback(
-    <K extends keyof AuctionListSearch>(
-      key: K,
-      value: AuctionListSearch[K],
-    ) => {
-      setFilter(key, value)
-    },
-    [setFilter],
   )
 
   const handleSearchChange = useCallback(
@@ -69,8 +60,10 @@ export function AuctionFilters() {
   )
 
   const handleTypeChange = useCallback(
-    (value: string | undefined) =>
-      updateFilter('type', value as AuctionListSearch['type']),
+    (value: string | undefined) => {
+      const typedValue = value as AuctionListSearch['type'] | undefined
+      updateFilter('type', typedValue)
+    },
     [updateFilter],
   )
 
@@ -90,9 +83,7 @@ export function AuctionFilters() {
     resetFiltersStore()
   }, [setSearchValue, setCargoNumValue, resetFiltersStore])
 
-  const hasFilters = Object.values(toApiFilters(filters)).some(
-    (v) => v !== undefined && v !== '',
-  )
+  const hasFilters = Object.keys(toApiFilters(filters)).length > 0
 
   const cityOptions = useMemo(
     () => (cities ?? []).map((city) => ({

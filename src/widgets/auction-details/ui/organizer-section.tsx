@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, memo } from 'react'
 
 import type { Auction } from '@/shared/api/generated/schemas'
 import { useDictionaries, getDictLabel } from '@/entities/dictionary'
@@ -14,7 +14,7 @@ type OrganizerSectionProps = {
   onCopy: (value: string, label: string) => void
 }
 
-export function OrganizerSection({
+export const OrganizerSection = memo(function OrganizerSection({
   auction,
   dictionaries,
   showContacts,
@@ -71,4 +71,4 @@ export function OrganizerSection({
       <Row label="НДС" value={auction.paymentTerms.withoutVat ? 'Без НДС' : 'С НДС'} />
     </Section>
   )
-}
+})

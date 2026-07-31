@@ -1,13 +1,25 @@
 import { createRootRouteWithContext, Link, Outlet } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 
+import { ErrorState } from '@/shared/ui/error-state'
+
 interface RouterContext {
   queryClient: QueryClient
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
+  notFoundComponent: NotFound,
 })
+
+function NotFound() {
+  return (
+    <ErrorState
+      message="Страница не найдена"
+      backLink
+    />
+  )
+}
 
 function RootLayout() {
   return (

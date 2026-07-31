@@ -1,6 +1,6 @@
 import { memo } from 'react'
 
-import type { AuctionStatus } from '@/shared/api/generated/schemas'
+import { AuctionStatus } from '@/shared/api/generated/schemas'
 import { Badge } from '@/shared/ui/badge'
 import { FilterField } from './filter-field'
 
@@ -8,6 +8,11 @@ type StatusFilterProps = {
   statuses: AuctionStatus[] | undefined
   options: { value: string; label: string }[] | undefined
   onToggle: (status: AuctionStatus) => void
+}
+
+// Проверка, что значение из справочника — валидный AuctionStatus
+function isAuctionStatus(value: string): value is AuctionStatus {
+  return Object.values(AuctionStatus).includes(value as AuctionStatus)
 }
 
 export const StatusFilter = memo(function StatusFilter({
@@ -20,7 +25,8 @@ export const StatusFilter = memo(function StatusFilter({
     <FilterField label="Статус">
       <div className="flex flex-wrap gap-2">
         {options?.map((item) => {
-          const active = statuses?.includes(item.value as AuctionStatus)
+          if (!isAuctionStatus(item.value)) return null
+          const active = statuses?.includes(item.value)
           return (
             <Badge
               key={item.value}

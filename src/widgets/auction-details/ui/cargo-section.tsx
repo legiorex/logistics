@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import type { Auction } from '@/shared/api/generated/schemas'
 import {
   formatDateRange,
@@ -13,7 +15,7 @@ type CargoSectionProps = {
   dictionaries: ReturnType<typeof useDictionaries>['data']
 }
 
-export function CargoSection({
+export const CargoSection = memo(function CargoSection({
   auction,
   dictionaries,
 }: CargoSectionProps) {
@@ -36,4 +38,4 @@ export function CargoSection({
       />
     </Section>
   )
-}
+})

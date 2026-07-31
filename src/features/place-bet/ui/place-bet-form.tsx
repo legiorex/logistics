@@ -75,7 +75,13 @@ export function PlaceBetForm({ auction }: PlaceBetFormProps) {
           name="price"
           render={({ field }) => {
             const handlePriceChange = (event: ChangeEvent<HTMLInputElement>) => {
-              field.onChange(event.target.valueAsNumber)
+              const value = event.target.value
+              if (value === '') {
+                field.onChange(undefined)
+              } else {
+                const num = event.target.valueAsNumber
+                field.onChange(Number.isNaN(num) ? undefined : num)
+              }
             }
             return (
             <FormItem>

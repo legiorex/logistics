@@ -1,6 +1,7 @@
 export { AuctionCard } from './ui/auction-card'
 export {
   auctionsListQueryKey,
+  auctionsListBaseKey,
   useAuctionsList,
 } from './model/use-auctions-list'
 export {

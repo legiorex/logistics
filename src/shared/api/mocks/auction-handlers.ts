@@ -59,7 +59,7 @@ function updateAuctionPrices(auction: (typeof db.auctions)[number]) {
 
   if (auctionBets.length === 0) return
 
-  if (auction.type === 'Up') {
+  if (auction.type === 'Up' || auction.type === 'Request') {
     auction.currentPrice = auctionBets[0].price
     const secondBet = auctionBets[1]
     auction.availablePrice = secondBet
@@ -108,9 +108,12 @@ function updateAuctionState(auctionUuid: string) {
   updateUserTradingStatus(auction)
 }
 
+// Искусственная задержка ответа списка аукционов для демонстрации skeleton/loading states
+const LIST_DELAY_MS = 1500
+
 export const auctionHandlers = [
   http.post('/api/auctions/list', async ({ request }) => {
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, LIST_DELAY_MS))
 
     let body: AuctionListRequest = {}
     try {

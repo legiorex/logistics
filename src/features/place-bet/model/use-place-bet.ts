@@ -6,7 +6,7 @@ import { usePlaceBet } from '@/shared/api/generated/bets'
 import { getGetAuctionByUuidQueryKey } from '@/shared/api/generated/auctions'
 import { getGetAuctionBetsQueryKey } from '@/shared/api/generated/bets'
 import type { ErrorResponse } from '@/shared/api/generated/schemas'
-import { auctionsListQueryKey } from '@/entities/auction'
+import { auctionsListBaseKey } from '@/entities/auction'
 
 // Мутация установки ставки: инвалидирует list/detail/bets и показывает toast
 export function usePlaceBetMutation(auctionUuid: string) {
@@ -23,7 +23,7 @@ export function usePlaceBetMutation(auctionUuid: string) {
           queryKey: getGetAuctionBetsQueryKey(auctionUuid),
         })
         void queryClient.invalidateQueries({
-          queryKey: auctionsListQueryKey({}).slice(0, 2),
+          queryKey: auctionsListBaseKey,
         })
       },
       onError: (error) => {

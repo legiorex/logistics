@@ -3,6 +3,7 @@ import { formatPrice } from '@/shared/lib/format'
 import { useDictionaries, getDictLabel } from '@/entities/dictionary'
 import { Section } from './section'
 import { Row } from './row'
+import { memo } from 'react'
 
 function getMyBetLabel(
   auction: Auction,
@@ -21,7 +22,7 @@ type TradingSectionProps = {
   showPrice: boolean
 }
 
-export function TradingSection({
+export const TradingSection = memo(function TradingSection({
   auction,
   dictionaries,
   showPrice,
@@ -43,4 +44,4 @@ export function TradingSection({
       />
     </Section>
   )
-}
+})

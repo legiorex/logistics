@@ -7,8 +7,15 @@ import { ThemeProvider } from 'next-themes'
 import './index.css'
 import { routeTree } from './routeTree.gen'
 import { Toaster } from '@/shared/ui/sonner'
+import { ErrorBoundary } from '@/shared/ui/error-boundary'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+    },
+  },
+})
 
 const router = createRouter({
   routeTree,
@@ -34,7 +41,9 @@ enableMocking().then(() => {
     <StrictMode>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
+          <ErrorBoundary>
+            <RouterProvider router={router} />
+          </ErrorBoundary>
           <Toaster />
         </QueryClientProvider>
       </ThemeProvider>

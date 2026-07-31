@@ -25,7 +25,15 @@ export type AuctionListSearch = z.infer<typeof auctionListSearchSchema>
 
 // Фильтры, уходящие в API (без page — пагинация клиентская)
 export function toApiFilters(search: AuctionListSearch): AuctionListRequest {
-  const filters = { ...search }
-  delete filters.page
+  const { page: _page, ...rest } = search
+  void _page
+  const filters: AuctionListRequest = {}
+
+  for (const [key, value] of Object.entries(rest)) {
+    if (value === '' || value === undefined) continue
+    if (typeof value === 'number' && Number.isNaN(value)) continue
+    Object.assign(filters, { [key]: value })
+  }
+
   return filters
 }

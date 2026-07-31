@@ -8,6 +8,9 @@ import type { AuctionListRequest } from '@/shared/api/generated/schemas'
 export const auctionsListQueryKey = (filters: AuctionListRequest) =>
   ['auctions', 'list', filters] as const
 
+// Базовый ключ для инвалидации всех list-запросов
+export const auctionsListBaseKey = ['auctions', 'list'] as const
+
 export function useAuctionsList(filters: AuctionListRequest) {
   return useQuery({
     queryKey: auctionsListQueryKey(filters),
