@@ -1,75 +1,96 @@
-# React + TypeScript + Vite
+# SPA для работы с грузовыми аукционами
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Single Page Application для работы с грузовыми аукционами по OpenAPI-схеме.
+Просмотр списка аукционов, детальная информация, история ставок и установка своей ставки.
 
-Currently, two official plugins are available:
+## Технологический стек
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Категория         | Технология                                                                     |
+| ----------------- | ------------------------------------------------------------------------------ |
+| UI                | React 19, TypeScript 6, Tailwind CSS 4, shadcn/ui (new-york), Radix UI, Lucide |
+| Сборка            | Vite 8                                                                         |
+| Роутинг           | TanStack Router (file-based routes, auto-code-splitting)                       |
+| Server state      | TanStack Query                                                                 |
+| Формы             | React Hook Form + Zod                                                          |
+| API-клиент        | Orval (генерация из OpenAPI-схемы)                                             |
+| Моки              | MSW (Mock Service Worker) — только в dev-режиме                                |
+| UI-state          | Zustand                                                                        |
+| Архитектура       | Feature-Sliced Design (FSD)                                                    |
+| Пакетный менеджер | PNPM                                                                           |
+| Линтинг           | ESLint                                                                         |
 
-## React Compiler
+## Требования
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Node.js** >= 20
+- **PNPM** >= 9
 
-## Expanding the ESLint configuration
+## Установка и запуск
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# 1. Установить зависимости
+pnpm install
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+# 2. Запустить dev-сервер
+pnpm dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Приложение будет доступно по адресу `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+В dev-режиме API-запросы перехватываются MSW — backend не требуется.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Доступные скрипты
+
+| Команда                | Описание                                           |
+| ---------------------- | -------------------------------------------------- |
+| `pnpm dev`             | Запуск dev-сервера с HMR                           |
+| `pnpm build`           | Сборка проекта (`tsc -b && vite build`)            |
+| `pnpm preview`         | Локальный предпросмотр production-сборки           |
+| `pnpm lint`            | Проверка ESLint                                    |
+| `pnpm generate:api`    | Генерация API-клиента из OpenAPI-схемы через Orval |
+| `pnpm generate:routes` | Генерация дерева маршрутов TanStack Router         |
+
+## Генерация API-клиента
+
+API-клиент генерируется из OpenAPI-схемы `src/shared/api/openapi.auctions.v0.json` через Orval.
+
+```bash
+pnpm generate:api
+```
+
+Сгенерированный код находится в `src/shared/api/generated/`. **Ручное редактирование запрещено.**
+
+## MSW-моки
+
+В dev-режиме (`import.meta.env.DEV`) все API-вызовы перехватываются MSW.
+Моки соответствуют OpenAPI-контракту и используют in-memory хранилище (`src/shared/api/mocks/db.ts`),
+которое обновляется после мутаций (установка ставки меняет цену, статус пользователя, список ставок).
+
+## Архитектура (Feature-Sliced Design)
 
 ```
+src/
+├── app/          # инициализация приложения (провайдеры, глобальные стили)
+├── pages/        # композиция виджетов для конкретных маршрутов
+├── widgets/      # композиция сущностей и фич для участков страницы
+├── features/     # бизнес-фичи (установка ставки, фильтрация списка)
+├── entities/     # бизнес-сущности (аукцион, ставка)
+├── shared/       # переиспользуемый код (UI, утилиты, API-клиент, моки)
+├── routes/       # file-based маршруты TanStack Router
+├── index.css     # глобальные стили (Tailwind)
+└── main.tsx      # точка входа
+```
+
+Верхние слои импортируют из нижних, не наоборот. Каждый слайс имеет public API (index-файлы).
+
+## Маршруты
+
+| Путь                        | Описание                                  |
+| --------------------------- | ----------------------------------------- |
+| `/`                         | Список аукционов с фильтрами и пагинацией |
+| `/auctions/$uuid`           | Детальная страница аукциона               |
+| `/auctions/$uuid/bets`      | История ставок по аукциону                |
+| `/auctions/$uuid/place-bet` | Форма установки ставки                    |
+
+## Документация
+
+Подробная документация проекта — в [`doc/`](./doc/README.md).
