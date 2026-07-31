@@ -2,7 +2,6 @@ import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 
 import type { Auction } from '@/shared/api/generated/schemas'
-import { Button } from '@/shared/ui/button'
 import {
   Card,
   CardContent,
@@ -18,6 +17,7 @@ import {
 } from '@/shared/lib/format'
 import { useDictionaries, getDictLabel } from '@/entities/dictionary'
 import { AuctionBadges, isPriceVisible } from '@/entities/auction'
+import { PrimaryActionButton } from './primary-action-button'
 
 interface AuctionCardProps {
   auction: Auction
@@ -96,38 +96,5 @@ export function AuctionCard({ auction, onPrefetch }: AuctionCardProps) {
         <PrimaryActionButton auction={auction} />
       </CardFooter>
     </Card>
-  )
-}
-
-function PrimaryActionButton({ auction }: { auction: Auction }) {
-  const { data: dictionaries } = useDictionaries()
-  const { uuid, primaryAction, trading } = auction
-
-  if (!primaryAction || (primaryAction === 'make_bet' && !trading.canSetBet)) {
-    return (
-      <Button disabled className="w-full">
-        Действие недоступно
-      </Button>
-    )
-  }
-
-  const label = getDictLabel(dictionaries?.primaryActions, primaryAction)
-
-  if (primaryAction === 'view_bets') {
-    return (
-      <Button asChild variant="secondary" className="w-full">
-        <Link to="/auctions/$uuid/bets" params={{ uuid }}>
-          {label}
-        </Link>
-      </Button>
-    )
-  }
-
-  return (
-    <Button asChild className="w-full">
-      <Link to="/auctions/$uuid/place-bet" params={{ uuid }}>
-        {label}
-      </Link>
-    </Button>
   )
 }

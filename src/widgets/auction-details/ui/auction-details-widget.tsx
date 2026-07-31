@@ -1,28 +1,19 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useCopyToClipboard } from 'usehooks-ts'
-import { Check, Copy } from 'lucide-react'
 import { toast } from 'sonner'
 
 import type { Auction } from '@/shared/api/generated/schemas'
 import { Button } from '@/shared/ui/button'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/shared/ui/card'
-import {
-  formatDateRange,
-  formatPrice,
-  formatVolume,
-  formatWeight,
-} from '@/shared/lib/format'
-import { useDictionaries, getDictLabel } from '@/entities/dictionary'
+import { useDictionaries } from '@/entities/dictionary'
 import {
   AuctionBadges,
   isPriceVisible,
 } from '@/entities/auction'
+import { TradingSection } from './trading-section'
+import { CargoSection } from './cargo-section'
+import { RouteSection } from './route-section'
+import { OrganizerSection } from './organizer-section'
 
 // Детальная страница аукциона: все секции с учётом DTO-флагов
 export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
@@ -82,230 +73,6 @@ export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
           onCopy={handleCopy}
         />
       </div>
-    </div>
-  )
-}
-
-function TradingSection({
-  auction,
-  dictionaries,
-  showPrice,
-}: {
-  auction: Auction
-  dictionaries: ReturnType<typeof useDictionaries>['data']
-  showPrice: boolean
-}) {
-  return (
-    <Section title="Торги">
-      <Row label="Текущая цена" value={showPrice ? formatPrice(auction.currentPrice) : 'Скрыта'} />
-      <Row label="Доступная цена" value={showPrice ? formatPrice(auction.availablePrice) : '—'} />
-      <Row label="Цена за км" value={showPrice ? formatPrice(auction.pricePerKm) : '—'} />
-      <Row label="Мин. цена" value={showPrice ? formatPrice(auction.trading.min) : '—'} />
-      <Row label="Макс. цена" value={showPrice ? formatPrice(auction.trading.max) : '—'} />
-      <Row
-        label="Шаг ставки"
-        value={showPrice ? formatPrice(auction.trading.step ?? auction.betStep) : '—'}
-      />
-      <Row
-        label="Моя ставка"
-        value={
-          auction.hasMyBet
-            ? getDictLabel(
-                dictionaries?.userTradingStatuses,
-                auction.userTradingStatus ?? 'NotParticipant',
-              )
-            : 'Нет'
-        }
-      />
-    </Section>
-  )
-}
-
-function CargoSection({
-  auction,
-  dictionaries,
-}: {
-  auction: Auction
-  dictionaries: ReturnType<typeof useDictionaries>['data']
-}) {
-  return (
-    <Section title="Груз и ТС">
-      <Row label="Груз" value={auction.cargo.name} />
-      <Row label="Вес" value={formatWeight(auction.cargo.weightKg)} />
-      <Row label="Объём" value={formatVolume(auction.cargo.volumeM3)} />
-      <Row
-        label="Тип кузова"
-        value={getDictLabel(dictionaries?.bodyTypes, auction.cargo.bodyType)}
-      />
-      <Row
-        label="Погрузка"
-        value={formatDateRange(auction.dates.loadDateFrom, auction.dates.loadDateTo)}
-      />
-      <Row
-        label="Выгрузка"
-        value={formatDateRange(auction.dates.unloadDateFrom, auction.dates.unloadDateTo)}
-      />
-    </Section>
-  )
-}
-
-function RouteSection({
-  auction,
-  hideAddresses,
-}: {
-  auction: Auction
-  hideAddresses: boolean
-}) {
-  return (
-    <Section title="Маршрут">
-      <ul className="flex flex-col gap-2">
-        {auction.points.map((point, index) => (
-          <li key={index} className="flex flex-col">
-            <span className="text-sm font-medium">
-              {point.type === 'load' ? 'Погрузка' : 'Выгрузка'} — {point.city}
-            </span>
-            {!hideAddresses && point.address && (
-              <span className="text-sm text-muted-foreground">
-                {point.address}
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
-    </Section>
-  )
-}
-
-function OrganizerSection({
-  auction,
-  dictionaries,
-  showContacts,
-  copiedField,
-  onCopy,
-}: {
-  auction: Auction
-  dictionaries: ReturnType<typeof useDictionaries>['data']
-  showContacts: boolean
-  copiedField: string | null
-  onCopy: (value: string, label: string) => void
-}) {
-  const contactsRows = useMemo(() => {
-    if (!showContacts || !auction.organizer.contacts) {
-      return <Row label="Контакты" value="Скрыты организатором" />
-    }
-    const phone = auction.organizer.contacts.phone ?? '—'
-    const email = auction.organizer.contacts.email ?? '—'
-    return (
-      <>
-        <CopyableRow
-          label="Телефон"
-          value={phone}
-          copied={copiedField === 'Телефон'}
-          onCopy={() => onCopy(phone, 'Телефон')}
-        />
-        <CopyableRow
-          label="Email"
-          value={email}
-          copied={copiedField === 'Email'}
-          onCopy={() => onCopy(email, 'Email')}
-        />
-      </>
-    )
-  }, [showContacts, auction.organizer.contacts, copiedField, onCopy])
-
-  return (
-    <Section title="Организатор и оплата">
-      <Row label="Организатор" value={auction.organizer.name} />
-      <CopyableRow
-        label="ИНН"
-        value={auction.organizer.inn}
-        copied={copiedField === 'ИНН'}
-        onCopy={() => onCopy(auction.organizer.inn, 'ИНН')}
-      />
-      {contactsRows}
-      <Row
-        label="Тип оплаты"
-        value={getDictLabel(dictionaries?.paymentTypes, auction.paymentTerms.type)}
-      />
-      <Row label="Отсрочка" value={`${auction.paymentTerms.delayDays} дн.`} />
-      <Row label="НДС" value={auction.paymentTerms.withoutVat ? 'Без НДС' : 'С НДС'} />
-    </Section>
-  )
-}
-
-function Section({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <dl className="flex flex-col gap-2 text-sm">{children}</dl>
-      </CardContent>
-    </Card>
-  )
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-baseline justify-between gap-4">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="text-right font-medium">{value}</dd>
-    </div>
-  )
-}
-
-function CopyButton({
-  copied,
-  onCopy,
-  label,
-}: {
-  copied: boolean
-  onCopy: () => void
-  label: string
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onCopy}
-      className="text-muted-foreground transition-colors hover:text-foreground"
-      aria-label={`Скопировать ${label}`}
-    >
-      {copied ? (
-        <Check className="size-3.5 text-green-600" />
-      ) : (
-        <Copy className="size-3.5" />
-      )}
-    </button>
-  )
-}
-
-function CopyableRow({
-  label,
-  value,
-  copied,
-  onCopy,
-}: {
-  label: string
-  value: string
-  copied: boolean
-  onCopy: () => void
-}) {
-  return (
-    <div className="flex items-baseline justify-between gap-4">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="flex items-center gap-1.5 text-right font-medium">
-        {value}
-        {value !== '—' && (
-          <CopyButton copied={copied} onCopy={onCopy} label={label} />
-        )}
-      </dd>
     </div>
   )
 }

@@ -1,18 +1,17 @@
 import { useNavigate, useSearch } from '@tanstack/react-router'
 
 import { useGetCities } from '@/shared/api/generated/cities'
-import type { AuctionStatus } from '@/shared/api/generated/schemas'
-import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { Checkbox } from '@/shared/ui/checkbox'
 import { Input } from '@/shared/ui/input'
-import { Label } from '@/shared/ui/label'
 import { useDictionaries } from '@/entities/dictionary'
 import { useDebouncedFilter } from '../model/use-debounced-filter'
 import { toApiFilters } from '../model/search-params'
 import type { AuctionListSearch } from '../model/search-params'
 import { FilterField } from './filter-field'
 import { FilterSelect } from './filter-select'
+import { StatusFilter } from './status-filter'
+import { DatePriceFilters } from './date-price-filters'
+import { CheckboxFilters } from './checkbox-filters'
 
 const SEARCH_DEBOUNCE_MS = 400
 
@@ -145,149 +144,6 @@ export function AuctionFilters() {
           Сбросить фильтры
         </Button>
       )}
-    </div>
-  )
-}
-
-function StatusFilter({
-  statuses,
-  options,
-  onToggle,
-}: {
-  statuses: AuctionStatus[] | undefined
-  options: { value: string; label: string }[] | undefined
-  onToggle: (status: AuctionStatus) => void
-}) {
-  return (
-    <FilterField label="Статус">
-      <div className="flex flex-wrap gap-2">
-        {options?.map((item) => {
-          const active = statuses?.includes(item.value as AuctionStatus)
-          return (
-            <Badge
-              key={item.value}
-              asChild
-              variant={active ? 'default' : 'outline'}
-              className="cursor-pointer"
-            >
-              <button
-                type="button"
-                onClick={() => onToggle(item.value as AuctionStatus)}
-              >
-                {item.label}
-              </button>
-            </Badge>
-          )
-        })}
-      </div>
-    </FilterField>
-  )
-}
-
-function DatePriceFilters({
-  loadDateFrom,
-  loadDateTo,
-  priceFrom,
-  priceTo,
-  onChange,
-}: {
-  loadDateFrom: string | undefined
-  loadDateTo: string | undefined
-  priceFrom: number | undefined
-  priceTo: number | undefined
-  onChange: <K extends keyof AuctionListSearch>(key: K, value: AuctionListSearch[K]) => void
-}) {
-  return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-      <FilterField label="Погрузка от" htmlFor="filter-load-date-from">
-        <Input
-          id="filter-load-date-from"
-          type="date"
-          value={loadDateFrom ?? ''}
-          onChange={(event) =>
-            onChange('loadDateFrom', event.target.value || undefined)
-          }
-        />
-      </FilterField>
-      <FilterField label="Погрузка до" htmlFor="filter-load-date-to">
-        <Input
-          id="filter-load-date-to"
-          type="date"
-          value={loadDateTo ?? ''}
-          onChange={(event) =>
-            onChange('loadDateTo', event.target.value || undefined)
-          }
-        />
-      </FilterField>
-      <FilterField label="Цена от" htmlFor="filter-price-from">
-        <Input
-          id="filter-price-from"
-          type="number"
-          min={0}
-          inputMode="numeric"
-          value={priceFrom ?? ''}
-          onChange={(event) =>
-            onChange(
-              'priceFrom',
-              event.target.value === '' ? undefined : event.target.valueAsNumber,
-            )
-          }
-        />
-      </FilterField>
-      <FilterField label="Цена до" htmlFor="filter-price-to">
-        <Input
-          id="filter-price-to"
-          type="number"
-          min={0}
-          inputMode="numeric"
-          value={priceTo ?? ''}
-          onChange={(event) =>
-            onChange(
-              'priceTo',
-              event.target.value === '' ? undefined : event.target.valueAsNumber,
-            )
-          }
-        />
-      </FilterField>
-    </div>
-  )
-}
-
-function CheckboxFilters({
-  isAvailable,
-  isBidder,
-  onChange,
-}: {
-  isAvailable: boolean | undefined
-  isBidder: boolean | undefined
-  onChange: <K extends keyof AuctionListSearch>(key: K, value: AuctionListSearch[K]) => void
-}) {
-  return (
-    <div className="flex flex-wrap gap-6">
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="filter-is-available"
-          checked={isAvailable ?? false}
-          onCheckedChange={(checked) =>
-            onChange('isAvailable', checked === true ? true : undefined)
-          }
-        />
-        <Label htmlFor="filter-is-available" className="cursor-pointer">
-          Только доступные
-        </Label>
-      </div>
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="filter-is-bidder"
-          checked={isBidder ?? false}
-          onCheckedChange={(checked) =>
-            onChange('isBidder', checked === true ? true : undefined)
-          }
-        />
-        <Label htmlFor="filter-is-bidder" className="cursor-pointer">
-          Только с моими ставками
-        </Label>
-      </div>
     </div>
   )
 }
