@@ -16,7 +16,11 @@ import { RouteSection } from './route-section'
 import { OrganizerSection } from './organizer-section'
 
 // Детальная страница аукциона: все секции с учётом DTO-флагов
-export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
+type AuctionDetailsWidgetProps = {
+  auction: Auction
+}
+
+export function AuctionDetailsWidget({ auction }: AuctionDetailsWidgetProps) {
   const { data: dictionaries } = useDictionaries()
   const { trading } = auction
   const [, copy] = useCopyToClipboard()

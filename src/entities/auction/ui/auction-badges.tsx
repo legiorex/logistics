@@ -7,7 +7,11 @@ import {
 } from './status-badges'
 
 // Блок бейджей аукциона: тип, статус, торговый статус пользователя, флаг «Моя ставка»
-export function AuctionBadges({ auction }: { auction: Auction }) {
+type AuctionBadgesProps = {
+  auction: Auction
+}
+
+export function AuctionBadges({ auction }: AuctionBadgesProps) {
   const { type, status, userTradingStatus, hasMyBet } = auction
 
   return (

@@ -1,14 +1,16 @@
 import { Check, Copy } from 'lucide-react'
 
+type CopyButtonProps = {
+  copied: boolean
+  onCopy: () => void
+  label: string
+}
+
 export function CopyButton({
   copied,
   onCopy,
   label,
-}: {
-  copied: boolean
-  onCopy: () => void
-  label: string
-}) {
+}: CopyButtonProps) {
   return (
     <button
       type="button"

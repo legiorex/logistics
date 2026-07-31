@@ -5,13 +5,15 @@ import {
   CardTitle,
 } from '@/shared/ui/card'
 
+type SectionProps = {
+  title: string
+  children: React.ReactNode
+}
+
 export function Section({
   title,
   children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
+}: SectionProps) {
   return (
     <Card>
       <CardHeader>

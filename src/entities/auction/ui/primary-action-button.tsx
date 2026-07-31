@@ -4,7 +4,11 @@ import type { Auction } from '@/shared/api/generated/schemas'
 import { Button } from '@/shared/ui/button'
 import { useDictionaries, getDictLabel } from '@/entities/dictionary'
 
-export function PrimaryActionButton({ auction }: { auction: Auction }) {
+type PrimaryActionButtonProps = {
+  auction: Auction
+}
+
+export function PrimaryActionButton({ auction }: PrimaryActionButtonProps) {
   const { data: dictionaries } = useDictionaries()
   const { uuid, primaryAction, trading } = auction
 

@@ -8,13 +8,15 @@ import { useDictionaries, getDictLabel } from '@/entities/dictionary'
 import { Section } from './section'
 import { Row } from './row'
 
+type CargoSectionProps = {
+  auction: Auction
+  dictionaries: ReturnType<typeof useDictionaries>['data']
+}
+
 export function CargoSection({
   auction,
   dictionaries,
-}: {
-  auction: Auction
-  dictionaries: ReturnType<typeof useDictionaries>['data']
-}) {
+}: CargoSectionProps) {
   return (
     <Section title="Груз и ТС">
       <Row label="Груз" value={auction.cargo.name} />

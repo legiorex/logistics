@@ -3,7 +3,11 @@ import { TableCell, TableRow } from '@/shared/ui/table'
 import { formatDateTime, formatPrice } from '@/shared/lib/format'
 import type { Bet } from '@/shared/api/generated/schemas'
 
-export function BetRow({ bet }: { bet: Bet }) {
+type BetRowProps = {
+  bet: Bet
+}
+
+export function BetRow({ bet }: BetRowProps) {
   return (
     <TableRow data-my-bet={bet.isMyBet || undefined} className={bet.isMyBet ? 'bg-accent/50' : undefined}>
       <TableCell className="font-medium">{bet.place}</TableCell>

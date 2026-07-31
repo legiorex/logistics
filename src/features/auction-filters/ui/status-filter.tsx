@@ -2,15 +2,17 @@ import type { AuctionStatus } from '@/shared/api/generated/schemas'
 import { Badge } from '@/shared/ui/badge'
 import { FilterField } from './filter-field'
 
+type StatusFilterProps = {
+  statuses: AuctionStatus[] | undefined
+  options: { value: string; label: string }[] | undefined
+  onToggle: (status: AuctionStatus) => void
+}
+
 export function StatusFilter({
   statuses,
   options,
   onToggle,
-}: {
-  statuses: AuctionStatus[] | undefined
-  options: { value: string; label: string }[] | undefined
-  onToggle: (status: AuctionStatus) => void
-}) {
+}: StatusFilterProps) {
   return (
     <FilterField label="Статус">
       <div className="flex flex-wrap gap-2">

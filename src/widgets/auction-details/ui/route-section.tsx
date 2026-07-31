@@ -1,13 +1,15 @@
 import type { Auction } from '@/shared/api/generated/schemas'
 import { Section } from './section'
 
+type RouteSectionProps = {
+  auction: Auction
+  hideAddresses: boolean
+}
+
 export function RouteSection({
   auction,
   hideAddresses,
-}: {
-  auction: Auction
-  hideAddresses: boolean
-}) {
+}: RouteSectionProps) {
   return (
     <Section title="Маршрут">
       <ul className="flex flex-col gap-2">

@@ -23,7 +23,11 @@ const tradingStatusVariants: Record<UserTradingStatus, BadgeVariant> = {
   NotParticipant: 'outline',
 }
 
-export function AuctionStatusBadge({ status }: { status: AuctionStatus }) {
+type AuctionStatusBadgeProps = {
+  status: AuctionStatus
+}
+
+export function AuctionStatusBadge({ status }: AuctionStatusBadgeProps) {
   const { data: dictionaries } = useDictionaries()
   return (
     <Badge variant={statusVariants[status]}>
@@ -32,7 +36,11 @@ export function AuctionStatusBadge({ status }: { status: AuctionStatus }) {
   )
 }
 
-export function AuctionTypeBadge({ type }: { type: AuctionType }) {
+type AuctionTypeBadgeProps = {
+  type: AuctionType
+}
+
+export function AuctionTypeBadge({ type }: AuctionTypeBadgeProps) {
   const { data: dictionaries } = useDictionaries()
   return (
     <Badge variant="outline">
@@ -41,11 +49,13 @@ export function AuctionTypeBadge({ type }: { type: AuctionType }) {
   )
 }
 
+type UserTradingStatusBadgeProps = {
+  status: UserTradingStatus
+}
+
 export function UserTradingStatusBadge({
   status,
-}: {
-  status: UserTradingStatus
-}) {
+}: UserTradingStatusBadgeProps) {
   const { data: dictionaries } = useDictionaries()
   return (
     <Badge variant={tradingStatusVariants[status]}>

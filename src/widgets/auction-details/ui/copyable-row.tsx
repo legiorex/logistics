@@ -1,16 +1,18 @@
 import { CopyButton } from './copy-button'
 
+type CopyableRowProps = {
+  label: string
+  value: string
+  copied: boolean
+  onCopy: () => void
+}
+
 export function CopyableRow({
   label,
   value,
   copied,
   onCopy,
-}: {
-  label: string
-  value: string
-  copied: boolean
-  onCopy: () => void
-}) {
+}: CopyableRowProps) {
   return (
     <div className="flex items-baseline justify-between gap-4">
       <dt className="text-muted-foreground">{label}</dt>

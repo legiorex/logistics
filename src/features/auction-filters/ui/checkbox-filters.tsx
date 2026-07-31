@@ -2,15 +2,17 @@ import { Checkbox } from '@/shared/ui/checkbox'
 import { Label } from '@/shared/ui/label'
 import type { AuctionListSearch } from '../model/search-params'
 
+type CheckboxFiltersProps = {
+  isAvailable: boolean | undefined
+  isBidder: boolean | undefined
+  onChange: <K extends keyof AuctionListSearch>(key: K, value: AuctionListSearch[K]) => void
+}
+
 export function CheckboxFilters({
   isAvailable,
   isBidder,
   onChange,
-}: {
-  isAvailable: boolean | undefined
-  isBidder: boolean | undefined
-  onChange: <K extends keyof AuctionListSearch>(key: K, value: AuctionListSearch[K]) => void
-}) {
+}: CheckboxFiltersProps) {
   return (
     <div className="flex flex-wrap gap-6">
       <div className="flex items-center gap-2">

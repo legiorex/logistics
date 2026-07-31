@@ -6,19 +6,21 @@ import { Section } from './section'
 import { Row } from './row'
 import { CopyableRow } from './copyable-row'
 
+type OrganizerSectionProps = {
+  auction: Auction
+  dictionaries: ReturnType<typeof useDictionaries>['data']
+  showContacts: boolean
+  copiedField: string | null
+  onCopy: (value: string, label: string) => void
+}
+
 export function OrganizerSection({
   auction,
   dictionaries,
   showContacts,
   copiedField,
   onCopy,
-}: {
-  auction: Auction
-  dictionaries: ReturnType<typeof useDictionaries>['data']
-  showContacts: boolean
-  copiedField: string | null
-  onCopy: (value: string, label: string) => void
-}) {
+}: OrganizerSectionProps) {
   const contactsRows = useMemo(() => {
     if (!showContacts || !auction.organizer.contacts) {
       return <Row label="Контакты" value="Скрыты организатором" />

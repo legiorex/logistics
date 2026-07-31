@@ -15,15 +15,17 @@ function getMyBetLabel(
   )
 }
 
+type TradingSectionProps = {
+  auction: Auction
+  dictionaries: ReturnType<typeof useDictionaries>['data']
+  showPrice: boolean
+}
+
 export function TradingSection({
   auction,
   dictionaries,
   showPrice,
-}: {
-  auction: Auction
-  dictionaries: ReturnType<typeof useDictionaries>['data']
-  showPrice: boolean
-}) {
+}: TradingSectionProps) {
   return (
     <Section title="Торги">
       <Row label="Текущая цена" value={showPrice ? formatPrice(auction.currentPrice) : 'Скрыта'} />
