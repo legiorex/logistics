@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link } from '@tanstack/react-router'
 
 import type { Auction } from '@/shared/api/generated/schemas'
@@ -8,7 +9,7 @@ type PrimaryActionButtonProps = {
   auction: Auction
 }
 
-export function PrimaryActionButton({ auction }: PrimaryActionButtonProps) {
+export const PrimaryActionButton = memo(function PrimaryActionButton({ auction }: PrimaryActionButtonProps) {
   const { data: dictionaries } = useDictionaries()
   const { uuid, primaryAction, trading } = auction
 
@@ -39,4 +40,4 @@ export function PrimaryActionButton({ auction }: PrimaryActionButtonProps) {
       </Link>
     </Button>
   )
-}
+})

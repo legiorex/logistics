@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { Input } from '@/shared/ui/input'
 import type { AuctionListSearch } from '../model/search-params'
 import { FilterField } from './filter-field'
@@ -10,7 +12,7 @@ type DatePriceFiltersProps = {
   onChange: <K extends keyof AuctionListSearch>(key: K, value: AuctionListSearch[K]) => void
 }
 
-export function DatePriceFilters({
+export const DatePriceFilters = memo(function DatePriceFilters({
   loadDateFrom,
   loadDateTo,
   priceFrom,
@@ -57,4 +59,4 @@ export function DatePriceFilters({
       </FilterField>
     </div>
   )
-}
+})

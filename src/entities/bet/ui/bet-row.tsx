@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { Badge } from '@/shared/ui/badge'
 import { TableCell, TableRow } from '@/shared/ui/table'
 import { formatDateTime, formatPrice } from '@/shared/lib/format'
@@ -7,7 +9,7 @@ type BetRowProps = {
   bet: Bet
 }
 
-export function BetRow({ bet }: BetRowProps) {
+export const BetRow = memo(function BetRow({ bet }: BetRowProps) {
   return (
     <TableRow data-my-bet={bet.isMyBet || undefined} className={bet.isMyBet ? 'bg-accent/50' : undefined}>
       <TableCell className="font-medium">{bet.place}</TableCell>
@@ -35,4 +37,4 @@ export function BetRow({ bet }: BetRowProps) {
       </TableCell>
     </TableRow>
   )
-}
+})

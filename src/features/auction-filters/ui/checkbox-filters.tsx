@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Label } from '@/shared/ui/label'
 import type { AuctionListSearch } from '../model/search-params'
@@ -8,7 +10,7 @@ type CheckboxFiltersProps = {
   onChange: <K extends keyof AuctionListSearch>(key: K, value: AuctionListSearch[K]) => void
 }
 
-export function CheckboxFilters({
+export const CheckboxFilters = memo(function CheckboxFilters({
   isAvailable,
   isBidder,
   onChange,
@@ -41,4 +43,4 @@ export function CheckboxFilters({
       </div>
     </div>
   )
-}
+})

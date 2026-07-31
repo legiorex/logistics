@@ -1,3 +1,4 @@
+import { memo } from 'react'
 
 import type { AuctionStatus } from '@/shared/api/generated/schemas'
 import { Badge } from '@/shared/ui/badge'
@@ -9,7 +10,7 @@ type StatusFilterProps = {
   onToggle: (status: AuctionStatus) => void
 }
 
-export function StatusFilter({
+export const StatusFilter = memo(function StatusFilter({
   statuses,
   options,
   onToggle,
@@ -39,4 +40,4 @@ export function StatusFilter({
       </div>
     </FilterField>
   )
-}
+})

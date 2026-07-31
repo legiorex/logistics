@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { Badge } from '@/shared/ui/badge'
 import type { Auction } from '@/shared/api/generated/schemas'
 import {
@@ -11,7 +13,7 @@ type AuctionBadgesProps = {
   auction: Auction
 }
 
-export function AuctionBadges({ auction }: AuctionBadgesProps) {
+export const AuctionBadges = memo(function AuctionBadges({ auction }: AuctionBadgesProps) {
   const { type, status, userTradingStatus, hasMyBet } = auction
 
   return (
@@ -22,4 +24,4 @@ export function AuctionBadges({ auction }: AuctionBadgesProps) {
       {hasMyBet && <Badge variant="secondary">Моя ставка есть</Badge>}
     </div>
   )
-}
+})

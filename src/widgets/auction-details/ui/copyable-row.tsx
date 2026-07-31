@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { CopyButton } from './copy-button'
 
 type CopyableRowProps = {
@@ -7,7 +9,7 @@ type CopyableRowProps = {
   onCopy: () => void
 }
 
-export function CopyableRow({
+export const CopyableRow = memo(function CopyableRow({
   label,
   value,
   copied,
@@ -24,4 +26,4 @@ export function CopyableRow({
       </dd>
     </div>
   )
-}
+})

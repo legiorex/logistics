@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import {
   Select,
   SelectContent,
@@ -23,7 +25,7 @@ interface FilterSelectProps {
 }
 
 // Select-фильтр с опцией «Все»: value=undefined → ALL, иначе реальное значение
-export function FilterSelect({
+export const FilterSelect = memo(function FilterSelect({
   label,
   placeholder,
   value,
@@ -50,4 +52,4 @@ export function FilterSelect({
       </Select>
     </FilterField>
   )
-}
+})

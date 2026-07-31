@@ -1,4 +1,4 @@
-import { type ChangeEvent } from 'react'
+import { type ChangeEvent, useCallback, useMemo } from 'react'
 
 import { useGetCities } from '@/shared/api/generated/cities'
 import type { AuctionStatus } from '@/shared/api/generated/schemas'
@@ -37,50 +37,78 @@ export function AuctionFilters() {
     SEARCH_DEBOUNCE_MS,
   )
 
-  const updateFilter = <K extends keyof AuctionListSearch>(
-    key: K,
-    value: AuctionListSearch[K],
-  ) => {
-    setFilter(key, value)
-  }
+  const updateFilter = useCallback(
+    <K extends keyof AuctionListSearch>(
+      key: K,
+      value: AuctionListSearch[K],
+    ) => {
+      setFilter(key, value)
+    },
+    [setFilter],
+  )
 
-  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) =>
-    setSearchValue(event.target.value)
+  const handleSearchChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => setSearchValue(event.target.value),
+    [setSearchValue],
+  )
 
-  const handleCargoNumChange = (event: ChangeEvent<HTMLInputElement>) =>
-    setCargoNumValue(event.target.value)
+  const handleCargoNumChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => setCargoNumValue(event.target.value),
+    [setCargoNumValue],
+  )
 
-  const handleStatusToggle = (status: AuctionStatus) => {
-    const current = filters.statuses ?? []
-    const next = current.includes(status)
-      ? current.filter((item) => item !== status)
-      : [...current, status]
-    updateFilter('statuses', next.length > 0 ? next : undefined)
-  }
+  const handleStatusToggle = useCallback(
+    (status: AuctionStatus) => {
+      const current = filters.statuses ?? []
+      const next = current.includes(status)
+        ? current.filter((item) => item !== status)
+        : [...current, status]
+      updateFilter('statuses', next.length > 0 ? next : undefined)
+    },
+    [filters.statuses, updateFilter],
+  )
 
-  const handleTypeChange = (value: string | undefined) =>
-    updateFilter('type', value as AuctionListSearch['type'])
+  const handleTypeChange = useCallback(
+    (value: string | undefined) =>
+      updateFilter('type', value as AuctionListSearch['type']),
+    [updateFilter],
+  )
 
-  const handleLoadCityChange = (value: string | undefined) =>
-    updateFilter('loadCity', value)
+  const handleLoadCityChange = useCallback(
+    (value: string | undefined) => updateFilter('loadCity', value),
+    [updateFilter],
+  )
 
-  const handleUnloadCityChange = (value: string | undefined) =>
-    updateFilter('unloadCity', value)
+  const handleUnloadCityChange = useCallback(
+    (value: string | undefined) => updateFilter('unloadCity', value),
+    [updateFilter],
+  )
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setSearchValue('')
     setCargoNumValue('')
     resetFiltersStore()
-  }
+  }, [setSearchValue, setCargoNumValue, resetFiltersStore])
 
   const hasFilters = Object.values(toApiFilters(filters)).some(
     (v) => v !== undefined && v !== '',
   )
 
-  const cityOptions = (cities ?? []).map((city) => ({
-    value: city.name,
-    label: city.name,
-  }))
+  const cityOptions = useMemo(
+    () => (cities ?? []).map((city) => ({
+      value: city.name,
+      label: city.name,
+    })),
+    [cities],
+  )
+
+  const auctionTypesOptions = useMemo(
+    () => (dictionaries?.auctionTypes ?? []).map((item) => ({
+      value: item.value,
+      label: item.label,
+    })),
+    [dictionaries?.auctionTypes],
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -114,10 +142,7 @@ export function AuctionFilters() {
           label="Тип аукциона"
           placeholder="Все типы"
           value={filters.type}
-          options={(dictionaries?.auctionTypes ?? []).map((item) => ({
-            value: item.value,
-            label: item.label,
-          }))}
+          options={auctionTypesOptions}
           onChange={handleTypeChange}
         />
         <FilterSelect

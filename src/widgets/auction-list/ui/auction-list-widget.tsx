@@ -32,11 +32,6 @@ export function AuctionListWidget() {
     void queryClient.prefetchQuery(getGetAuctionByUuidQueryOptions(uuid))
   }, [queryClient])
 
-  const handlePrefetch = useCallback(
-    (uuid: string) => () => prefetchAuction(uuid),
-    [prefetchAuction],
-  )
-
   const handleRetry = useCallback(() => void refetch(), [refetch])
 
   if (isPending) {
@@ -80,7 +75,7 @@ export function AuctionListWidget() {
               <AuctionCard
                 key={auction.uuid}
                 auction={auction}
-                onPrefetch={handlePrefetch(auction.uuid)}
+                onPrefetch={prefetchAuction}
               />
             ))}
           </div>

@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import type { Auction } from '@/shared/api/generated/schemas'
 import { useDictionaries, getDictLabel } from '@/entities/dictionary'
 import { Section } from './section'
@@ -22,6 +24,19 @@ export function OrganizerSection({
   const contacts = auction.organizer.contacts
   const showContactRows = showContacts && contacts
 
+  const handleCopyInn = useCallback(
+    () => onCopy(auction.organizer.inn, 'ИНН'),
+    [onCopy, auction.organizer.inn],
+  )
+  const handleCopyPhone = useCallback(
+    () => onCopy(contacts?.phone ?? '—', 'Телефон'),
+    [onCopy, contacts?.phone],
+  )
+  const handleCopyEmail = useCallback(
+    () => onCopy(contacts?.email ?? '—', 'Email'),
+    [onCopy, contacts?.email],
+  )
+
   return (
     <Section title="Организатор и оплата">
       <Row label="Организатор" value={auction.organizer.name} />
@@ -29,7 +44,7 @@ export function OrganizerSection({
         label="ИНН"
         value={auction.organizer.inn}
         copied={copiedField === 'ИНН'}
-        onCopy={() => onCopy(auction.organizer.inn, 'ИНН')}
+        onCopy={handleCopyInn}
       />
       {!showContactRows && <Row label="Контакты" value="Скрыты организатором" />}
       {showContactRows && (
@@ -38,13 +53,13 @@ export function OrganizerSection({
             label="Телефон"
             value={contacts.phone ?? '—'}
             copied={copiedField === 'Телефон'}
-            onCopy={() => onCopy(contacts.phone ?? '—', 'Телефон')}
+            onCopy={handleCopyPhone}
           />
           <CopyableRow
             label="Email"
             value={contacts.email ?? '—'}
             copied={copiedField === 'Email'}
-            onCopy={() => onCopy(contacts.email ?? '—', 'Email')}
+            onCopy={handleCopyEmail}
           />
         </>
       )}

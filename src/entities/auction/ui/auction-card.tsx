@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 
@@ -21,10 +22,10 @@ import { PrimaryActionButton } from './primary-action-button'
 
 interface AuctionCardProps {
   auction: Auction
-  onPrefetch?: () => void
+  onPrefetch?: (uuid: string) => void
 }
 
-export function AuctionCard({ auction, onPrefetch }: AuctionCardProps) {
+export const AuctionCard = memo(function AuctionCard({ auction, onPrefetch }: AuctionCardProps) {
   const { data: dictionaries } = useDictionaries()
   const {
     uuid,
@@ -40,7 +41,7 @@ export function AuctionCard({ auction, onPrefetch }: AuctionCardProps) {
   const showPrice = isPriceVisible(auction)
 
   return (
-    <Card onMouseEnter={onPrefetch} className="flex flex-col">
+    <Card onMouseEnter={() => onPrefetch?.(uuid)} className="flex flex-col">
       <CardHeader className="gap-2">
         <AuctionBadges auction={auction} />
         <CardTitle>
@@ -97,4 +98,4 @@ export function AuctionCard({ auction, onPrefetch }: AuctionCardProps) {
       </CardFooter>
     </Card>
   )
-}
+})
