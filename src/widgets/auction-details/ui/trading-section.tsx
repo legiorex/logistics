@@ -4,6 +4,17 @@ import { useDictionaries, getDictLabel } from '@/entities/dictionary'
 import { Section } from './section'
 import { Row } from './row'
 
+function getMyBetLabel(
+  auction: Auction,
+  dictionaries: ReturnType<typeof useDictionaries>['data'],
+): string {
+  if (!auction.hasMyBet) return 'Нет'
+  return getDictLabel(
+    dictionaries?.userTradingStatuses,
+    auction.userTradingStatus ?? 'NotParticipant',
+  )
+}
+
 export function TradingSection({
   auction,
   dictionaries,
@@ -26,14 +37,7 @@ export function TradingSection({
       />
       <Row
         label="Моя ставка"
-        value={
-          auction.hasMyBet
-            ? getDictLabel(
-                dictionaries?.userTradingStatuses,
-                auction.userTradingStatus ?? 'NotParticipant',
-              )
-            : 'Нет'
-        }
+        value={getMyBetLabel(auction, dictionaries)}
       />
     </Section>
   )

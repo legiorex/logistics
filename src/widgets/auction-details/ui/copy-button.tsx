@@ -16,11 +16,8 @@ export function CopyButton({
       className="text-muted-foreground transition-colors hover:text-foreground"
       aria-label={`Скопировать ${label}`}
     >
-      {copied ? (
-        <Check className="size-3.5 text-green-600" />
-      ) : (
-        <Copy className="size-3.5" />
-      )}
+      {copied && <Check className="size-3.5 text-green-600" />}
+      {!copied && <Copy className="size-3.5" />}
     </button>
   )
 }

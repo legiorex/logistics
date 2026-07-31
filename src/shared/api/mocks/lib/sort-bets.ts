@@ -10,8 +10,9 @@ export function sortBetsByPrice(bets: Bet[], auctionType: AuctionType): Bet[] {
   const descending = auctionType !== 'Down'
   return [...bets].sort((a, b) => {
     if (isEqualTo(a.price, b.price)) return 0
-    return descending
-      ? (isLessThan(a.price, b.price) ? 1 : -1)
-      : (isGreaterThan(a.price, b.price) ? 1 : -1)
+    if (descending) {
+      return isLessThan(a.price, b.price) ? 1 : -1
+    }
+    return isGreaterThan(a.price, b.price) ? 1 : -1
   })
 }

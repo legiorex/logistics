@@ -2,6 +2,7 @@ import { Link, useParams } from '@tanstack/react-router'
 import { useDocumentTitle } from 'usehooks-ts'
 
 import { useGetAuctionByUuid } from '@/shared/api/generated/auctions'
+import type { Auction } from '@/shared/api/generated/schemas'
 import { Button } from '@/shared/ui/button'
 import {
   Card,
@@ -14,13 +15,17 @@ import { ErrorState } from '@/shared/ui/error-state'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { PlaceBetForm } from '@/features/place-bet'
 
+function getPageTitle(auction: Auction | undefined): string {
+  if (!auction) return 'Ставка — Грузовые аукционы'
+  const action = auction.hasMyBet ? 'Изменить ставку' : 'Сделать ставку'
+  return `${action} — Заявка № ${auction.requestNumber} — Грузовые аукционы`
+}
+
 export function PlaceBetPage() {
   const { uuid } = useParams({ from: '/auctions/$uuid/place-bet' })
   const { data: auction, isPending, isError, refetch } = useGetAuctionByUuid(uuid)
 
-  useDocumentTitle(
-    auction ? `${auction.hasMyBet ? 'Изменить ставку' : 'Сделать ставку'} — Заявка № ${auction.requestNumber} — Грузовые аукционы` : 'Ставка — Грузовые аукционы',
-  )
+  useDocumentTitle(getPageTitle(auction))
 
   if (isPending) {
     return (
