@@ -3,10 +3,9 @@ import { useNavigate, useSearch } from '@tanstack/react-router'
 
 import { getGetAuctionByUuidQueryOptions } from '@/shared/api/generated/auctions'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader } from '@/shared/ui/card'
-import { Skeleton } from '@/shared/ui/skeleton'
 import { AuctionCard, useAuctionsList } from '@/entities/auction'
 import { AuctionFilters, toApiFilters } from '@/features/auction-filters'
+import { AuctionListSkeleton } from './auction-list-skeleton'
 
 const PAGE_SIZE = 6
 
@@ -25,25 +24,7 @@ export function AuctionListWidget() {
   }
 
   if (isPending) {
-    return (
-      <div className="flex flex-col gap-6">
-        <AuctionFiltersSkeleton />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: PAGE_SIZE }).map((_, index) => (
-            <Card key={index}>
-              <CardHeader>
-                <Skeleton className="h-5 w-2/3" />
-              </CardHeader>
-              <CardContent className="flex flex-col gap-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-1/2" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    )
+    return <AuctionListSkeleton />
   }
 
   if (isError) {
@@ -123,19 +104,6 @@ export function AuctionListWidget() {
           </div>
         </>
       )}
-    </div>
-  )
-}
-
-function AuctionFiltersSkeleton() {
-  return (
-    <div className="flex flex-col gap-4">
-      <Skeleton className="h-9 w-full" />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Skeleton className="h-9 w-full" />
-        <Skeleton className="h-9 w-full" />
-        <Skeleton className="h-9 w-full" />
-      </div>
     </div>
   )
 }

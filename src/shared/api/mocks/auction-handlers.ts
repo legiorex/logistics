@@ -83,6 +83,8 @@ function updateAuctionState(auctionUuid: string) {
 
 export const auctionHandlers = [
   http.post('/api/auctions/list', async ({ request }) => {
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
     let body: AuctionListRequest = {}
     try {
       body = (await request.json()) as AuctionListRequest
