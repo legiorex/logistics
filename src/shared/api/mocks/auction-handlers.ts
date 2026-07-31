@@ -23,18 +23,18 @@ type ValidationError = { message: string; code: string }
 // Валидация цены ставки: positive, min, max, step
 function validateBetPrice(
   price: number,
-  trading: { min: number | null; max: number | null; step: number | null },
+  trading: { min?: number | null; max?: number | null; step?: number | null },
 ): ValidationError | null {
   if (!price || !isPositiveMoney(price)) {
     return { message: 'Цена обязательна и должна быть больше 0', code: 'INVALID_PRICE' }
   }
-  if (trading.min !== null && isLessThan(price, trading.min)) {
+  if (trading.min != null && isLessThan(price, trading.min)) {
     return { message: `Цена должна быть не меньше ${trading.min}`, code: 'PRICE_TOO_LOW' }
   }
-  if (trading.max !== null && isGreaterThan(price, trading.max)) {
+  if (trading.max != null && isGreaterThan(price, trading.max)) {
     return { message: `Цена должна быть не больше ${trading.max}`, code: 'PRICE_TOO_HIGH' }
   }
-  if (!isPriceValidForStep(price, trading.step, trading.min)) {
+  if (trading.step != null && !isPriceValidForStep(price, trading.step, trading.min)) {
     return { message: `Цена должна быть кратна шагу ${trading.step}`, code: 'INVALID_STEP' }
   }
   return null

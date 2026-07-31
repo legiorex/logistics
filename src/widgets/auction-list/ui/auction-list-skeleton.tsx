@@ -116,7 +116,7 @@ function AuctionCardSkeleton() {
         </div>
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1">
           {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className="contents">
+            <div key={`row-${i}`} className="contents">
               <Skeleton className="h-4 w-20" />
               <Skeleton className="ml-auto h-4 w-28" />
             </div>
