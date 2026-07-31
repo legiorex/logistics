@@ -9,7 +9,15 @@ import type { AuctionType } from "./auctionType";
 
 export interface AuctionListRequest {
   search?: string;
-  status?: AuctionStatus;
+  cargoNum?: string;
+  statuses?: AuctionStatus[];
   type?: AuctionType;
-  city?: string;
+  loadCity?: string;
+  unloadCity?: string;
+  loadDateFrom?: string;
+  loadDateTo?: string;
+  isAvailable?: boolean;
+  isBidder?: boolean;
+  priceFrom?: number;
+  priceTo?: number;
 }

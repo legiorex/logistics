@@ -1,3 +1,4 @@
+import type { AuctionStatus, AuctionType } from '@/shared/api/generated/schemas'
 import auctionsData from './data/auctions.json'
 import betsData from './data/bets.json'
 import citiesData from './data/cities.json'
@@ -7,8 +8,8 @@ import usersData from './data/users.json'
 export interface Auction {
   uuid: string
   requestNumber: string
-  type: string
-  status: string
+  type: AuctionType
+  status: AuctionStatus
   userTradingStatus: string | null
   hasMyBet: boolean
   primaryAction: string | null

@@ -1,6 +1,7 @@
 import { formatISO, getTime } from 'date-fns'
 import { http, HttpResponse } from 'msw'
 
+import type { AuctionListRequest } from '@/shared/api/generated/schemas'
 import {
   addMoney,
   calculatePriceWithVat,
@@ -12,6 +13,7 @@ import {
   subtractMoney,
 } from '@/shared/lib/money'
 import { db, type Bet } from './db'
+import { filterAuctions } from './filter-auctions'
 
 const CURRENT_USER = db.users.find((u: { role: string }) => u.role === 'carrier')
 
@@ -81,39 +83,14 @@ function updateAuctionState(auctionUuid: string) {
 
 export const auctionHandlers = [
   http.post('/api/auctions/list', async ({ request }) => {
-    let body: { search?: string; status?: string; type?: string; city?: string } = {}
+    let body: AuctionListRequest = {}
     try {
-      body = (await request.json()) as typeof body
+      body = (await request.json()) as AuctionListRequest
     } catch {
       // empty body is fine
     }
 
-    let result = [...db.auctions]
-
-    if (body.search) {
-      const q = body.search.toLowerCase()
-      result = result.filter(
-        (a) =>
-          a.requestNumber.toLowerCase().includes(q) ||
-          a.route.load.toLowerCase().includes(q) ||
-          a.route.unload.toLowerCase().includes(q) ||
-          a.cargo.name.toLowerCase().includes(q),
-      )
-    }
-
-    if (body.status) {
-      result = result.filter((a) => a.status === body.status)
-    }
-
-    if (body.type) {
-      result = result.filter((a) => a.type === body.type)
-    }
-
-    if (body.city) {
-      result = result.filter(
-        (a) => a.route.load === body.city || a.route.unload === body.city,
-      )
-    }
+    const result = filterAuctions(db.auctions, body)
 
     return HttpResponse.json(result)
   }),

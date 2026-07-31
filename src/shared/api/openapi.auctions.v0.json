@@ -230,9 +230,20 @@
         "type": "object",
         "properties": {
           "search": { "type": "string" },
-          "status": { "$ref": "#/components/schemas/AuctionStatus" },
+          "cargoNum": { "type": "string" },
+          "statuses": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AuctionStatus" }
+          },
           "type": { "$ref": "#/components/schemas/AuctionType" },
-          "city": { "type": "string" }
+          "loadCity": { "type": "string" },
+          "unloadCity": { "type": "string" },
+          "loadDateFrom": { "type": "string", "format": "date" },
+          "loadDateTo": { "type": "string", "format": "date" },
+          "isAvailable": { "type": "boolean" },
+          "isBidder": { "type": "boolean" },
+          "priceFrom": { "type": "number" },
+          "priceTo": { "type": "number" }
         }
       },
       "AuctionType": {

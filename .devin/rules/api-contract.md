@@ -10,6 +10,11 @@ OpenAPI-схема `openapi.auctions.v0.json` — единственный ис�
 Соблюдение контракта обязательно: структуры запросов/ответов, enum-значения,
 nullable-поля, ошибки, edge cases.
 
+Схему **можно и нужно расширять**, если этого требует продуктовая задача
+(например, добавление нового фильтра). Правится сам файл
+`openapi.auctions.v0.json`, после чего код обязательно перегенерируется —
+руками фичи/поля добавлять в клиент нельзя (см. "Code Generation").
+
 ## Endpoints
 
 - `POST /auctions/list` — список аукционов (с фильтрами и пагинацией).
@@ -17,11 +22,23 @@ nullable-поля, ошибки, edge cases.
 - `GET /auctions/{auctionUuid}/bets` — список ставок по аукциону.
 - `POST /auctions/{auctionUuid}/bets` — установить ставку.
 
+### AuctionListRequest (фильтры списка)
+
+- `search` — полнотекстовый поиск (номер заявки, город, груз).
+- `cargoNum` — поиск по номеру заявки.
+- `statuses` — массив статусов (`AuctionStatus[]`).
+- `type` — тип аукциона (`AuctionType`).
+- `loadCity` / `unloadCity` — город погрузки/выгрузки.
+- `loadDateFrom` / `loadDateTo` — диапазон дат погрузки.
+- `isAvailable` — только доступные аукционы.
+- `isBidder` — только аукционы с моими ставками.
+- `priceFrom` / `priceTo` — диапазон текущей цены.
+
 ## Code Generation
 
 - API-клиент генерируется через Orval: `pnpm generate:api`.
-- Конфигурация — в `orval.config.ts` (mode: `tags-split`, client: `react-query`,
-  httpClient: `fetch`).
+- Конфигурация — в `orval.config.ts` (mode: `tags`, client: `react-query`,
+  httpClient: `axios`).
 - Сгенерированный код — в `src/shared/api/generated/`.
 - **Запрещено** вручную редактировать файлы в `src/shared/api/generated/`.
 - При изменении OpenAPI-схемы — перегенерировать код, не править руками.

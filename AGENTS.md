@@ -133,6 +133,9 @@ Follow FSD methodology and best practices.
 - Сгенерированный код находится в `src/shared/api/generated/`.
 - **Запрещено** вручную редактировать файлы в `src/shared/api/generated/`.
 - Для обновления API клиента используйте `pnpm generate:api`.
+- Если продуктовая задача требует поля/фильтра, которого нет в схеме —
+  правьте сам `openapi.auctions.v0.json` и перегенерируйте клиент. Изобретать
+  поля напрямую в клиентском коде мимо схемы запрещено (см. "Prohibited").
 - MSW-моки должны соответствовать OpenAPI-контракту.
 - Моки работают только в dev-режиме (`import.meta.env.DEV`).
 
@@ -190,7 +193,8 @@ Before implementation:
 - Violating FSD layer boundaries.
 - Creating circular dependencies.
 - Adding unused dependencies.
-- Inventing APIs or library functionality.
+- Inventing API fields/endpoints that bypass `openapi.auctions.v0.json` (extend the schema itself instead, then regenerate).
+- Inventing library functionality.
 - Inventing requirements that do not exist.
 - Performing large-scale refactoring without explicit approval.
 - Modifying code outside the scope of the task.
