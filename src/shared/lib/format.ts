@@ -1,21 +1,17 @@
-const priceFormatter = new Intl.NumberFormat('ru-RU', {
-  style: 'currency',
-  currency: 'RUB',
-  maximumFractionDigits: 0,
-})
+import BigNumber from 'bignumber.js'
 
-const numberFormatter = new Intl.NumberFormat('ru-RU', {
-  maximumFractionDigits: 2,
-})
+import { moneyFormat } from './money'
 
 export function formatPrice(value: number | null | undefined): string {
   if (value === null || value === undefined) return '—'
-  return priceFormatter.format(value)
+  return `${new BigNumber(value).toFormat(0, undefined, moneyFormat)}\u00A0₽`
 }
 
 export function formatNumber(value: number | null | undefined): string {
   if (value === null || value === undefined) return '—'
-  return numberFormatter.format(value)
+  const bn = new BigNumber(value)
+  const dp = bn.isInteger() ? 0 : 2
+  return bn.toFormat(dp, undefined, moneyFormat)
 }
 
 export function formatDate(value: string | null | undefined): string {
@@ -43,9 +39,9 @@ export function formatDateRange(from: string, to: string): string {
 }
 
 export function formatWeight(weightKg: number): string {
-  return `${numberFormatter.format(weightKg)} кг`
+  return `${formatNumber(weightKg)} кг`
 }
 
 export function formatVolume(volumeM3: number): string {
-  return `${numberFormatter.format(volumeM3)} м³`
+  return `${formatNumber(volumeM3)} м³`
 }

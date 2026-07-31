@@ -1,4 +1,15 @@
 import { http, HttpResponse } from 'msw'
+
+import {
+  addMoney,
+  calculatePriceWithVat,
+  isEqualTo,
+  isGreaterThan,
+  isLessThan,
+  isPositiveMoney,
+  modMoney,
+  subtractMoney,
+} from '@/shared/lib/money'
 import { db, type Bet } from './db'
 
 const CURRENT_USER = db.users.find((u: { role: string }) => u.role === 'carrier')
@@ -10,8 +21,8 @@ function recalculatePlaces(auctionUuid: string) {
   const auctionBets = db.bets
     .filter((b) => b.auctionUuid === auctionUuid && !b.isCancelled)
     .sort((a, b) => {
-      if (a.price === b.price) return 0
-      return descending ? (a.price < b.price ? 1 : -1) : (a.price > b.price ? 1 : -1)
+      if (isEqualTo(a.price, b.price)) return 0
+      return descending ? (isLessThan(a.price, b.price) ? 1 : -1) : (isGreaterThan(a.price, b.price) ? 1 : -1)
     })
 
   auctionBets.forEach((bet, idx) => {
@@ -25,7 +36,10 @@ function updateAuctionState(auctionUuid: string) {
 
   const auctionBets = db.bets
     .filter((b) => b.auctionUuid === auctionUuid && !b.isCancelled)
-    .sort((a, b) => (a.price < b.price ? 1 : -1))
+    .sort((a, b) => {
+      if (isEqualTo(a.price, b.price)) return 0
+      return isLessThan(a.price, b.price) ? 1 : -1
+    })
 
   if (auctionBets.length === 0) return
 
@@ -35,14 +49,14 @@ function updateAuctionState(auctionUuid: string) {
     auction.currentPrice = auctionBets[0].price
     const secondBet = auctionBets[1]
     auction.availablePrice = secondBet
-      ? secondBet.price + (auction.betStep ?? 0)
-      : auctionBets[0].price + (auction.betStep ?? 0)
+      ? addMoney(secondBet.price, auction.betStep ?? 0)
+      : addMoney(auctionBets[0].price, auction.betStep ?? 0)
   } else if (auction.type === 'Down') {
     auction.currentPrice = auctionBets[auctionBets.length - 1].price
     const secondBet = auctionBets[auctionBets.length - 2]
     auction.availablePrice = secondBet
-      ? secondBet.price - (auction.betStep ?? 0)
-      : auctionBets[auctionBets.length - 1].price - (auction.betStep ?? 0)
+      ? subtractMoney(secondBet.price, auction.betStep ?? 0)
+      : subtractMoney(auctionBets[auctionBets.length - 1].price, auction.betStep ?? 0)
   } else if (auction.type === 'FixPrice') {
     auction.currentPrice = auctionBets[0].price
     auction.availablePrice = auctionBets[0].price
@@ -163,14 +177,14 @@ export const auctionHandlers = [
       )
     }
 
-    if (!body.price || body.price <= 0) {
+    if (!body.price || !isPositiveMoney(body.price)) {
       return HttpResponse.json(
         { message: 'Цена обязательна и должна быть больше 0', code: 'INVALID_PRICE' },
         { status: 422 },
       )
     }
 
-    if (auction.trading.min !== null && body.price < auction.trading.min) {
+    if (auction.trading.min !== null && isLessThan(body.price, auction.trading.min)) {
       return HttpResponse.json(
         {
           message: `Цена должна быть не меньше ${auction.trading.min}`,
@@ -180,7 +194,7 @@ export const auctionHandlers = [
       )
     }
 
-    if (auction.trading.max !== null && body.price > auction.trading.max) {
+    if (auction.trading.max !== null && isGreaterThan(body.price, auction.trading.max)) {
       return HttpResponse.json(
         {
           message: `Цена должна быть не больше ${auction.trading.max}`,
@@ -193,9 +207,9 @@ export const auctionHandlers = [
     if (auction.trading.step !== null) {
       const remainder =
         auction.trading.min !== null
-          ? (body.price - auction.trading.min) % auction.trading.step
-          : body.price % auction.trading.step
-      if (remainder !== 0) {
+          ? modMoney(subtractMoney(body.price, auction.trading.min), auction.trading.step)
+          : modMoney(body.price, auction.trading.step)
+      if (!isEqualTo(remainder, 0)) {
         return HttpResponse.json(
           {
             message: `Цена должна быть кратна шагу ${auction.trading.step}`,
@@ -212,9 +226,7 @@ export const auctionHandlers = [
 
     if (existingMyBet) {
       existingMyBet.price = body.price
-      existingMyBet.priceWithVat = auction.paymentTerms.withoutVat
-        ? body.price
-        : Math.round(body.price * 1.2)
+      existingMyBet.priceWithVat = calculatePriceWithVat(body.price, auction.paymentTerms.withoutVat)
       existingMyBet.createdAt = new Date().toISOString()
     } else {
       const newBet: Bet = {
@@ -222,9 +234,7 @@ export const auctionHandlers = [
         auctionUuid,
         carrier: CURRENT_USER?.companyName ?? 'ИП Иванов И.И.',
         price: body.price,
-        priceWithVat: auction.paymentTerms.withoutVat
-          ? body.price
-          : Math.round(body.price * 1.2),
+        priceWithVat: calculatePriceWithVat(body.price, auction.paymentTerms.withoutVat),
         place: 0,
         isWinner: false,
         isCancelled: false,

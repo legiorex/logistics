@@ -26,6 +26,9 @@ importers:
       axios:
         specifier: ^1.18.1
         version: 1.18.1
+      bignumber.js:
+        specifier: ^11.1.5
+        version: 11.1.5
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1814,6 +1817,9 @@ packages:
     resolution: {integrity: sha512-69D/imtToCsIcAl8WBS2YaRwA4jO/j0HhU+hELqMEu9f54MoUtI6+XH5mrKU8rEFNEk/Ui1I2MK4/JkWacclGw==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+
+  bignumber.js@11.1.5:
+    resolution: {integrity: sha512-6WmzCNtUnfKpbozq+hOgWaZMMzORmYBwF1xZScyoIX3QRYWeKTtxxwDOW5tIz7C9BdjkIYHGTcelCLkXg0mndw==}
 
   brace-expansion@5.0.8:
     resolution: {integrity: sha512-JZyDyq3D4AUifKTPOB7DELf6XsB3WdPuNxCtob1vFXPsSXhdAiHBWJ/tJ8HAc9aH84BK+5JFZLNkJKx3G9kzQg==}
@@ -4719,6 +4725,8 @@ snapshots:
   balanced-match@4.0.4: {}
 
   baseline-browser-mapping@2.11.6: {}
+
+  bignumber.js@11.1.5: {}
 
   brace-expansion@5.0.8:
     dependencies:
