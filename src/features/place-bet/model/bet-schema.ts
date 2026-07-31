@@ -2,12 +2,10 @@ import { z } from 'zod'
 
 import type { Trading } from '@/shared/api/generated/schemas'
 import {
-  absMoney,
   isGreaterThan,
   isGreaterThanZero,
   isLessThan,
-  modMoney,
-  subtractMoney,
+  isPriceValidForStep,
 } from '@/shared/lib/money'
 
 // Схема формы ставки: цена > 0 и ограничения min/max/step из DTO торгов
@@ -30,10 +28,7 @@ export function createBetSchema(trading: Trading) {
           })
         }
         if (trading.step !== null && trading.step !== undefined && isGreaterThanZero(trading.step)) {
-          const base =
-            trading.min !== null && trading.min !== undefined ? trading.min : 0
-          const remainder = modMoney(subtractMoney(price, base), trading.step)
-          if (isGreaterThan(absMoney(remainder), 1e-9) && isGreaterThan(absMoney(subtractMoney(remainder, trading.step)), 1e-9)) {
+          if (!isPriceValidForStep(price, trading.step, trading.min)) {
             ctx.addIssue({
               code: 'custom',
               message: `Цена должна быть кратна шагу ${trading.step}`,

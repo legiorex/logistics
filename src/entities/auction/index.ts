@@ -8,3 +8,5 @@ export {
   AuctionTypeBadge,
   UserTradingStatusBadge,
 } from './ui/status-badges'
+export { AuctionBadges } from './ui/auction-badges'
+export { isPriceVisible } from './lib/show-price'

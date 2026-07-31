@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { useDebounceValue } from 'usehooks-ts'
 
 import { useGetCities } from '@/shared/api/generated/cities'
 import type { AuctionStatus } from '@/shared/api/generated/schemas'
@@ -9,17 +7,13 @@ import { Button } from '@/shared/ui/button'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
 import { useDictionaries } from '@/entities/dictionary'
+import { useDebouncedFilter } from '../model/use-debounced-filter'
+import { toApiFilters } from '../model/search-params'
 import type { AuctionListSearch } from '../model/search-params'
+import { FilterField } from './filter-field'
+import { FilterSelect } from './filter-select'
 
-const ALL = 'all'
 const SEARCH_DEBOUNCE_MS = 400
 
 // Фильтры списка аукционов; состояние синхронизировано с URL search params.
@@ -31,36 +25,16 @@ export function AuctionFilters() {
   const { data: dictionaries } = useDictionaries()
   const { data: cities } = useGetCities({ query: { staleTime: Infinity } })
 
-  const [searchValue, setSearchValue] = useState(search.search ?? '')
-  const [debouncedSearchValue] = useDebounceValue(searchValue, SEARCH_DEBOUNCE_MS)
-
-  const [cargoNumValue, setCargoNumValue] = useState(search.cargoNum ?? '')
-  const [debouncedCargoNumValue] = useDebounceValue(cargoNumValue, SEARCH_DEBOUNCE_MS)
-
-  // Дебаунс текстового поиска, чтобы не дёргать API на каждый символ
-  useEffect(() => {
-    if (debouncedSearchValue === (search.search ?? '')) return
-    void navigate({
-      search: (prev: AuctionListSearch) => ({
-        ...prev,
-        search: debouncedSearchValue || undefined,
-        page: 1,
-      }),
-      replace: true,
-    })
-  }, [debouncedSearchValue, search.search, navigate])
-
-  useEffect(() => {
-    if (debouncedCargoNumValue === (search.cargoNum ?? '')) return
-    void navigate({
-      search: (prev: AuctionListSearch) => ({
-        ...prev,
-        cargoNum: debouncedCargoNumValue || undefined,
-        page: 1,
-      }),
-      replace: true,
-    })
-  }, [debouncedCargoNumValue, search.cargoNum, navigate])
+  const { value: searchValue, setValue: setSearchValue } = useDebouncedFilter(
+    'search',
+    search.search ?? '',
+    SEARCH_DEBOUNCE_MS,
+  )
+  const { value: cargoNumValue, setValue: setCargoNumValue } = useDebouncedFilter(
+    'cargoNum',
+    search.cargoNum ?? '',
+    SEARCH_DEBOUNCE_MS,
+  )
 
   const updateFilter = <K extends keyof AuctionListSearch>(
     key: K,
@@ -89,45 +63,37 @@ export function AuctionFilters() {
     void navigate({ search: { page: 1 } })
   }
 
-  const hasFilters =
-    Boolean(search.search) ||
-    Boolean(search.cargoNum) ||
-    Boolean(search.statuses?.length) ||
-    Boolean(search.type) ||
-    Boolean(search.loadCity) ||
-    Boolean(search.unloadCity) ||
-    Boolean(search.loadDateFrom) ||
-    Boolean(search.loadDateTo) ||
-    search.isAvailable !== undefined ||
-    search.isBidder !== undefined ||
-    search.priceFrom !== undefined ||
-    search.priceTo !== undefined
+  const hasFilters = Object.values(toApiFilters(search)).some(
+    (v) => v !== undefined && v !== '',
+  )
+
+  const cityOptions = (cities ?? []).map((city) => ({
+    value: city.name,
+    label: city.name,
+  }))
 
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="filter-search">Поиск</Label>
+        <FilterField label="Поиск" htmlFor="filter-search">
           <Input
             id="filter-search"
             placeholder="Номер заявки, город, груз"
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
           />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="filter-cargo-num">Номер заявки</Label>
+        </FilterField>
+        <FilterField label="Номер заявки" htmlFor="filter-cargo-num">
           <Input
             id="filter-cargo-num"
             placeholder="Например, 10234"
             value={cargoNumValue}
             onChange={(event) => setCargoNumValue(event.target.value)}
           />
-        </div>
+        </FilterField>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label>Статус</Label>
+      <FilterField label="Статус">
         <div className="flex flex-wrap gap-2">
           {dictionaries?.auctionStatuses.map((item) => {
             const active = search.statuses?.includes(item.value as AuctionStatus)
@@ -148,79 +114,39 @@ export function AuctionFilters() {
             )
           })}
         </div>
-      </div>
+      </FilterField>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="flex flex-col gap-2">
-          <Label>Тип аукциона</Label>
-          <Select
-            value={search.type ?? ALL}
-            onValueChange={(value) =>
-              updateFilter('type', value === ALL ? undefined : (value as AuctionListSearch['type']))
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Все типы" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Все типы</SelectItem>
-              {dictionaries?.auctionTypes.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label>Город погрузки</Label>
-          <Select
-            value={search.loadCity ?? ALL}
-            onValueChange={(value) =>
-              updateFilter('loadCity', value === ALL ? undefined : value)
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Все города" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Все города</SelectItem>
-              {cities?.map((city) => (
-                <SelectItem key={city.code} value={city.name}>
-                  {city.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label>Город выгрузки</Label>
-          <Select
-            value={search.unloadCity ?? ALL}
-            onValueChange={(value) =>
-              updateFilter('unloadCity', value === ALL ? undefined : value)
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Все города" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Все города</SelectItem>
-              {cities?.map((city) => (
-                <SelectItem key={city.code} value={city.name}>
-                  {city.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <FilterSelect
+          label="Тип аукциона"
+          placeholder="Все типы"
+          value={search.type}
+          options={(dictionaries?.auctionTypes ?? []).map((item) => ({
+            value: item.value,
+            label: item.label,
+          }))}
+          onChange={(value) =>
+            updateFilter('type', value as AuctionListSearch['type'])
+          }
+        />
+        <FilterSelect
+          label="Город погрузки"
+          placeholder="Все города"
+          value={search.loadCity}
+          options={cityOptions}
+          onChange={(value) => updateFilter('loadCity', value)}
+        />
+        <FilterSelect
+          label="Город выгрузки"
+          placeholder="Все города"
+          value={search.unloadCity}
+          options={cityOptions}
+          onChange={(value) => updateFilter('unloadCity', value)}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="filter-load-date-from">Погрузка от</Label>
+        <FilterField label="Погрузка от" htmlFor="filter-load-date-from">
           <Input
             id="filter-load-date-from"
             type="date"
@@ -229,9 +155,8 @@ export function AuctionFilters() {
               updateFilter('loadDateFrom', event.target.value || undefined)
             }
           />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="filter-load-date-to">Погрузка до</Label>
+        </FilterField>
+        <FilterField label="Погрузка до" htmlFor="filter-load-date-to">
           <Input
             id="filter-load-date-to"
             type="date"
@@ -240,9 +165,8 @@ export function AuctionFilters() {
               updateFilter('loadDateTo', event.target.value || undefined)
             }
           />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="filter-price-from">Цена от</Label>
+        </FilterField>
+        <FilterField label="Цена от" htmlFor="filter-price-from">
           <Input
             id="filter-price-from"
             type="number"
@@ -256,9 +180,8 @@ export function AuctionFilters() {
               )
             }
           />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="filter-price-to">Цена до</Label>
+        </FilterField>
+        <FilterField label="Цена до" htmlFor="filter-price-to">
           <Input
             id="filter-price-to"
             type="number"
@@ -272,7 +195,7 @@ export function AuctionFilters() {
               )
             }
           />
-        </div>
+        </FilterField>
       </div>
 
       <div className="flex flex-wrap gap-6">

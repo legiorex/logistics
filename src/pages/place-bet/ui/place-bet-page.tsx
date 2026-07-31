@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/ui/card'
+import { ErrorState } from '@/shared/ui/error-state'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { PlaceBetForm } from '@/features/place-bet'
 
@@ -32,19 +33,11 @@ export function PlaceBetPage() {
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center gap-4 py-16 text-center">
-        <p className="text-muted-foreground">
-          Аукцион не найден или произошла ошибка загрузки
-        </p>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => void refetch()}>
-            Повторить
-          </Button>
-          <Button asChild variant="ghost">
-            <Link to="/">К списку аукционов</Link>
-          </Button>
-        </div>
-      </div>
+      <ErrorState
+        message="Аукцион не найден или произошла ошибка загрузки"
+        onRetry={() => void refetch()}
+        backLink
+      />
     )
   }
 

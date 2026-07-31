@@ -3,6 +3,8 @@ import { useNavigate, useSearch } from '@tanstack/react-router'
 
 import { getGetAuctionByUuidQueryOptions } from '@/shared/api/generated/auctions'
 import { Button } from '@/shared/ui/button'
+import { EmptyState } from '@/shared/ui/empty-state'
+import { ErrorState } from '@/shared/ui/error-state'
 import { AuctionCard, useAuctionsList } from '@/entities/auction'
 import { AuctionFilters, toApiFilters } from '@/features/auction-filters'
 import { AuctionListSkeleton } from './auction-list-skeleton'
@@ -29,12 +31,10 @@ export function AuctionListWidget() {
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center gap-4 py-16 text-center">
-        <p className="text-muted-foreground">Не удалось загрузить аукционы</p>
-        <Button variant="outline" onClick={() => void refetch()}>
-          Повторить
-        </Button>
-      </div>
+      <ErrorState
+        message="Не удалось загрузить аукционы"
+        onRetry={() => void refetch()}
+      />
     )
   }
 
@@ -58,12 +58,10 @@ export function AuctionListWidget() {
       <AuctionFilters />
 
       {total === 0 ? (
-        <div className="flex flex-col items-center gap-2 py-16 text-center">
-          <p className="text-lg font-medium">Аукционы не найдены</p>
-          <p className="text-sm text-muted-foreground">
-            Попробуйте изменить фильтры или поисковый запрос
-          </p>
-        </div>
+        <EmptyState
+          title="Аукционы не найдены"
+          subtitle="Попробуйте изменить фильтры или поисковый запрос"
+        />
       ) : (
         <>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">

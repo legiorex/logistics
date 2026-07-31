@@ -5,30 +5,29 @@ import type { AuctionListRequest } from '@/shared/api/generated/schemas'
 import {
   addMoney,
   calculatePriceWithVat,
-  isEqualTo,
   isGreaterThan,
   isLessThan,
   isPositiveMoney,
-  modMoney,
+  isPriceValidForStep,
   subtractMoney,
 } from '@/shared/lib/money'
 import { db, type Bet } from './db'
 import { filterAuctions } from './filter-auctions'
+import { findAuctionOr404, findMyBet } from './lib/auction-utils'
+import { sortBetsByPrice } from './lib/sort-bets'
 
 const CURRENT_USER = db.users.find((u: { role: string }) => u.role === 'carrier')
 
 function recalculatePlaces(auctionUuid: string) {
   const auction = db.auctions.find((a) => a.uuid === auctionUuid)
-  const descending = auction?.type !== 'Down'
+  if (!auction) return
 
-  const auctionBets = db.bets
-    .filter((b) => b.auctionUuid === auctionUuid && !b.isCancelled)
-    .sort((a, b) => {
-      if (isEqualTo(a.price, b.price)) return 0
-      return descending ? (isLessThan(a.price, b.price) ? 1 : -1) : (isGreaterThan(a.price, b.price) ? 1 : -1)
-    })
+  const sorted = sortBetsByPrice(
+    db.bets.filter((b) => b.auctionUuid === auctionUuid && !b.isCancelled),
+    auction.type,
+  )
 
-  auctionBets.forEach((bet, idx) => {
+  sorted.forEach((bet, idx) => {
     bet.place = idx + 1
   })
 }
@@ -37,12 +36,10 @@ function updateAuctionState(auctionUuid: string) {
   const auction = db.auctions.find((a) => a.uuid === auctionUuid)
   if (!auction) return
 
-  const auctionBets = db.bets
-    .filter((b) => b.auctionUuid === auctionUuid && !b.isCancelled)
-    .sort((a, b) => {
-      if (isEqualTo(a.price, b.price)) return 0
-      return isLessThan(a.price, b.price) ? 1 : -1
-    })
+  const auctionBets = sortBetsByPrice(
+    db.bets.filter((b) => b.auctionUuid === auctionUuid && !b.isCancelled),
+    auction.type,
+  )
 
   if (auctionBets.length === 0) return
 
@@ -99,28 +96,16 @@ export const auctionHandlers = [
 
   http.get('/api/auctions/:auctionUuid', ({ params }) => {
     const auctionUuid = params.auctionUuid as string
-    const auction = db.auctions.find((a) => a.uuid === auctionUuid)
-
-    if (!auction) {
-      return HttpResponse.json(
-        { message: 'Аукцион не найден', code: 'NOT_FOUND' },
-        { status: 404 },
-      )
-    }
+    const { auction, notFoundResponse } = findAuctionOr404(auctionUuid)
+    if (notFoundResponse) return notFoundResponse
 
     return HttpResponse.json(auction)
   }),
 
   http.get('/api/auctions/:auctionUuid/bets', ({ params }) => {
     const auctionUuid = params.auctionUuid as string
-    const auction = db.auctions.find((a) => a.uuid === auctionUuid)
-
-    if (!auction) {
-      return HttpResponse.json(
-        { message: 'Аукцион не найден', code: 'NOT_FOUND' },
-        { status: 404 },
-      )
-    }
+    const { notFoundResponse } = findAuctionOr404(auctionUuid)
+    if (notFoundResponse) return notFoundResponse
 
     const bets = db.bets
       .filter((b) => b.auctionUuid === auctionUuid)
@@ -131,14 +116,8 @@ export const auctionHandlers = [
 
   http.post('/api/auctions/:auctionUuid/bets', async ({ params, request }) => {
     const auctionUuid = params.auctionUuid as string
-    const auction = db.auctions.find((a) => a.uuid === auctionUuid)
-
-    if (!auction) {
-      return HttpResponse.json(
-        { message: 'Аукцион не найден', code: 'NOT_FOUND' },
-        { status: 404 },
-      )
-    }
+    const { auction, notFoundResponse } = findAuctionOr404(auctionUuid)
+    if (notFoundResponse) return notFoundResponse
 
     if (!auction.trading.canSetBet) {
       return HttpResponse.json(
@@ -184,25 +163,17 @@ export const auctionHandlers = [
       )
     }
 
-    if (auction.trading.step !== null) {
-      const remainder =
-        auction.trading.min !== null
-          ? modMoney(subtractMoney(body.price, auction.trading.min), auction.trading.step)
-          : modMoney(body.price, auction.trading.step)
-      if (!isEqualTo(remainder, 0)) {
-        return HttpResponse.json(
-          {
-            message: `Цена должна быть кратна шагу ${auction.trading.step}`,
-            code: 'INVALID_STEP',
-          },
-          { status: 422 },
-        )
-      }
+    if (!isPriceValidForStep(body.price, auction.trading.step, auction.trading.min)) {
+      return HttpResponse.json(
+        {
+          message: `Цена должна быть кратна шагу ${auction.trading.step}`,
+          code: 'INVALID_STEP',
+        },
+        { status: 422 },
+      )
     }
 
-    const existingMyBet = db.bets.find(
-      (b) => b.auctionUuid === auctionUuid && b.isMyBet && !b.isCancelled,
-    )
+    const existingMyBet = findMyBet(auctionUuid)
 
     if (existingMyBet) {
       existingMyBet.price = body.price
@@ -228,11 +199,7 @@ export const auctionHandlers = [
     recalculatePlaces(auctionUuid)
     updateAuctionState(auctionUuid)
 
-    const myBet = db.bets.find(
-      (b) => b.auctionUuid === auctionUuid && b.isMyBet && !b.isCancelled,
-    )
-
-    return HttpResponse.json(myBet)
+    return HttpResponse.json(findMyBet(auctionUuid))
   }),
 
   http.get('/api/dictionaries', () => {

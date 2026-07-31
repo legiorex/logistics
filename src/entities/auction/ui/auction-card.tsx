@@ -17,11 +17,7 @@ import {
   formatWeight,
 } from '@/shared/lib/format'
 import { useDictionaries, getDictLabel } from '@/entities/dictionary'
-import {
-  AuctionStatusBadge,
-  AuctionTypeBadge,
-  UserTradingStatusBadge,
-} from './status-badges'
+import { AuctionBadges, isPriceVisible } from '@/entities/auction'
 
 interface AuctionCardProps {
   auction: Auction
@@ -33,30 +29,20 @@ export function AuctionCard({ auction, onPrefetch }: AuctionCardProps) {
   const {
     uuid,
     requestNumber,
-    type,
-    status,
-    userTradingStatus,
-    hasMyBet,
     route,
     dates,
     cargo,
     currentPrice,
     pricePerKm,
     betStep,
-    trading,
   } = auction
 
-  const showPrice = !trading.noViewCargoPrice
+  const showPrice = isPriceVisible(auction)
 
   return (
     <Card onMouseEnter={onPrefetch} className="flex flex-col">
       <CardHeader className="gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <AuctionTypeBadge type={type} />
-          <AuctionStatusBadge status={status} />
-          {userTradingStatus && <UserTradingStatusBadge status={userTradingStatus} />}
-          {hasMyBet && <MyBetFlag />}
-        </div>
+        <AuctionBadges auction={auction} />
         <CardTitle>
           <Link
             to="/auctions/$uuid"
@@ -111,10 +97,6 @@ export function AuctionCard({ auction, onPrefetch }: AuctionCardProps) {
       </CardFooter>
     </Card>
   )
-}
-
-function MyBetFlag() {
-  return <span className="text-xs text-muted-foreground">Моя ставка есть</span>
 }
 
 function PrimaryActionButton({ auction }: { auction: Auction }) {

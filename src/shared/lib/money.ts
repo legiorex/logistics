@@ -63,3 +63,15 @@ export function calculatePriceWithVat(price: number, withoutVat: boolean): numbe
     .integerValue(BigNumber.ROUND_HALF_UP)
     .toNumber()
 }
+
+// Проверка кратности цены шагу ставки: (price - base) % step должно быть ~0
+export function isPriceValidForStep(
+  price: number,
+  step: number | null | undefined,
+  min: number | null | undefined,
+): boolean {
+  if (step === null || step === undefined || !isGreaterThanZero(step)) return true
+  const base = min !== null && min !== undefined ? min : 0
+  const remainder = modMoney(subtractMoney(price, base), step)
+  return isEqualTo(remainder, 0)
+}

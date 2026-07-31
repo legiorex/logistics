@@ -5,7 +5,6 @@ import { Check, Copy } from 'lucide-react'
 import { toast } from 'sonner'
 
 import type { Auction } from '@/shared/api/generated/schemas'
-import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import {
   Card,
@@ -21,9 +20,8 @@ import {
 } from '@/shared/lib/format'
 import { useDictionaries, getDictLabel } from '@/entities/dictionary'
 import {
-  AuctionStatusBadge,
-  AuctionTypeBadge,
-  UserTradingStatusBadge,
+  AuctionBadges,
+  isPriceVisible,
 } from '@/entities/auction'
 
 // Детальная страница аукциона: все секции с учётом DTO-флагов
@@ -34,7 +32,7 @@ export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const showContacts =
     !trading.hidePointsAddressAndContacts && !auction.organizer.isContactsHidden
-  const showPrice = !trading.noViewCargoPrice
+  const showPrice = isPriceVisible(auction)
 
   const handleCopy = (value: string, label: string) => {
     if (!value || value === '—') return
@@ -50,14 +48,7 @@ export function AuctionDetailsWidget({ auction }: { auction: Auction }) {
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <AuctionTypeBadge type={auction.type} />
-          <AuctionStatusBadge status={auction.status} />
-          {auction.userTradingStatus && (
-            <UserTradingStatusBadge status={auction.userTradingStatus} />
-          )}
-          {auction.hasMyBet && <Badge variant="secondary">Моя ставка есть</Badge>}
-        </div>
+        <AuctionBadges auction={auction} />
         <h1 className="text-2xl font-semibold">
           Заявка № {auction.requestNumber}
         </h1>

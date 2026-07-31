@@ -1,5 +1,6 @@
 import { useGetAuctionBets } from '@/shared/api/generated/bets'
-import { Button } from '@/shared/ui/button'
+import { EmptyState } from '@/shared/ui/empty-state'
+import { ErrorState } from '@/shared/ui/error-state'
 import { Skeleton } from '@/shared/ui/skeleton'
 import {
   Table,
@@ -41,23 +42,19 @@ export function BetsListWidget({ auctionUuid, hideHistory }: BetsListWidgetProps
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center gap-4 py-12 text-center">
-        <p className="text-muted-foreground">Не удалось загрузить ставки</p>
-        <Button variant="outline" onClick={() => void refetch()}>
-          Повторить
-        </Button>
-      </div>
+      <ErrorState
+        message="Не удалось загрузить ставки"
+        onRetry={() => void refetch()}
+      />
     )
   }
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 py-12 text-center">
-        <p className="text-lg font-medium">Ставок пока нет</p>
-        <p className="text-sm text-muted-foreground">
-          Станьте первым участником торгов
-        </p>
-      </div>
+      <EmptyState
+        title="Ставок пока нет"
+        subtitle="Станьте первым участником торгов"
+      />
     )
   }
 
