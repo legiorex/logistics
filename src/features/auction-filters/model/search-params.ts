@@ -25,18 +25,7 @@ export type AuctionListSearch = z.infer<typeof auctionListSearchSchema>
 
 // Фильтры, уходящие в API (без page — пагинация клиентская)
 export function toApiFilters(search: AuctionListSearch): AuctionListRequest {
-  return {
-    ...(search.search ? { search: search.search } : {}),
-    ...(search.cargoNum ? { cargoNum: search.cargoNum } : {}),
-    ...(search.statuses?.length ? { statuses: search.statuses } : {}),
-    ...(search.type ? { type: search.type } : {}),
-    ...(search.loadCity ? { loadCity: search.loadCity } : {}),
-    ...(search.unloadCity ? { unloadCity: search.unloadCity } : {}),
-    ...(search.loadDateFrom ? { loadDateFrom: search.loadDateFrom } : {}),
-    ...(search.loadDateTo ? { loadDateTo: search.loadDateTo } : {}),
-    ...(search.isAvailable !== undefined ? { isAvailable: search.isAvailable } : {}),
-    ...(search.isBidder !== undefined ? { isBidder: search.isBidder } : {}),
-    ...(search.priceFrom !== undefined ? { priceFrom: search.priceFrom } : {}),
-    ...(search.priceTo !== undefined ? { priceTo: search.priceTo } : {}),
-  }
+  const filters = { ...search }
+  delete filters.page
+  return filters
 }

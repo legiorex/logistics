@@ -1,3 +1,4 @@
+import { type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
@@ -72,7 +73,11 @@ export function PlaceBetForm({ auction }: PlaceBetFormProps) {
         <FormField
           control={form.control}
           name="price"
-          render={({ field }) => (
+          render={({ field }) => {
+            const handlePriceChange = (event: ChangeEvent<HTMLInputElement>) => {
+              field.onChange(event.target.valueAsNumber)
+            }
+            return (
             <FormItem>
               <FormLabel>Цена ставки, ₽</FormLabel>
               <FormControl>
@@ -84,7 +89,7 @@ export function PlaceBetForm({ auction }: PlaceBetFormProps) {
                   placeholder="Введите цену"
                   {...field}
                   value={field.value ?? ''}
-                  onChange={(event) => field.onChange(event.target.valueAsNumber)}
+                  onChange={handlePriceChange}
                 />
               </FormControl>
               {hints.length > 0 && (
@@ -92,7 +97,8 @@ export function PlaceBetForm({ auction }: PlaceBetFormProps) {
               )}
               <FormMessage />
             </FormItem>
-          )}
+          )
+          }}
         />
         <Button type="submit" disabled={mutation.isPending}>
           {mutation.isPending ? 'Отправка…' : 'Установить ставку'}

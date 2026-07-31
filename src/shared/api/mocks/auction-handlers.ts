@@ -3,13 +3,8 @@ import { HttpResponse, http } from 'msw'
 
 import type { AuctionListRequest } from '@/shared/api/generated/schemas'
 import {
-  addMoney,
   calculatePriceWithVat,
-  isGreaterThan,
-  isLessThan,
-  isPositiveMoney,
   isPriceValidForStep,
-  subtractMoney,
 } from '@/shared/lib/money'
 import { db, type Bet } from './db'
 import { filterAuctions } from './filter-auctions'
@@ -25,13 +20,13 @@ function validateBetPrice(
   price: number,
   trading: { min?: number | null; max?: number | null; step?: number | null },
 ): ValidationError | null {
-  if (!price || !isPositiveMoney(price)) {
+  if (!price || price <= 0) {
     return { message: 'Цена обязательна и должна быть больше 0', code: 'INVALID_PRICE' }
   }
-  if (trading.min != null && isLessThan(price, trading.min)) {
+  if (trading.min != null && price < trading.min) {
     return { message: `Цена должна быть не меньше ${trading.min}`, code: 'PRICE_TOO_LOW' }
   }
-  if (trading.max != null && isGreaterThan(price, trading.max)) {
+  if (trading.max != null && price > trading.max) {
     return { message: `Цена должна быть не больше ${trading.max}`, code: 'PRICE_TOO_HIGH' }
   }
   if (trading.step != null && !isPriceValidForStep(price, trading.step, trading.min)) {
@@ -68,14 +63,14 @@ function updateAuctionPrices(auction: (typeof db.auctions)[number]) {
     auction.currentPrice = auctionBets[0].price
     const secondBet = auctionBets[1]
     auction.availablePrice = secondBet
-      ? addMoney(secondBet.price, auction.betStep ?? 0)
-      : addMoney(auctionBets[0].price, auction.betStep ?? 0)
+      ? secondBet.price + (auction.betStep ?? 0)
+      : auctionBets[0].price + (auction.betStep ?? 0)
   } else if (auction.type === 'Down') {
     auction.currentPrice = auctionBets[auctionBets.length - 1].price
     const secondBet = auctionBets[auctionBets.length - 2]
     auction.availablePrice = secondBet
-      ? subtractMoney(secondBet.price, auction.betStep ?? 0)
-      : subtractMoney(auctionBets[auctionBets.length - 1].price, auction.betStep ?? 0)
+      ? secondBet.price - (auction.betStep ?? 0)
+      : auctionBets[auctionBets.length - 1].price - (auction.betStep ?? 0)
   } else if (auction.type === 'FixPrice') {
     auction.currentPrice = auctionBets[0].price
     auction.availablePrice = auctionBets[0].price

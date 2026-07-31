@@ -1,33 +1,23 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useDebounceValue } from 'usehooks-ts'
 
-import type { AuctionListSearch } from './search-params'
+import { useFiltersStore } from './filters-store'
 
-// Дебаунс текстового поля фильтра: локальный state → debounce → URL search params
+// Дебаунс текстового поля фильтра: локальный state → debounce → store
 export function useDebouncedFilter(
-  key: keyof AuctionListSearch,
+  key: 'search' | 'cargoNum',
   initialValue: string,
   debounceMs: number,
 ) {
-  const search = useSearch({ from: '/' })
-  const navigate = useNavigate({ from: '/' })
+  const setFilter = useFiltersStore((s) => s.setFilter)
+  const storeValue = useFiltersStore((s) => s.filters[key])
   const [value, setValue] = useState(initialValue)
   const [debouncedValue] = useDebounceValue(value, debounceMs)
 
-  const currentValue = search[key] as string | undefined
-
   useEffect(() => {
-    if (debouncedValue === (currentValue ?? '')) return
-    void navigate({
-      search: (prev: AuctionListSearch) => ({
-        ...prev,
-        [key]: debouncedValue || undefined,
-        page: 1,
-      }),
-      replace: true,
-    })
-  }, [debouncedValue, currentValue, key, navigate])
+    if (debouncedValue === (storeValue ?? '')) return
+    setFilter(key, debouncedValue || undefined)
+  }, [debouncedValue, storeValue, key, setFilter])
 
   return { value, setValue }
 }

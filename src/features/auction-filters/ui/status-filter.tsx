@@ -1,3 +1,4 @@
+
 import type { AuctionStatus } from '@/shared/api/generated/schemas'
 import { Badge } from '@/shared/ui/badge'
 import { FilterField } from './filter-field'
@@ -13,6 +14,7 @@ export function StatusFilter({
   options,
   onToggle,
 }: StatusFilterProps) {
+
   return (
     <FilterField label="Статус">
       <div className="flex flex-wrap gap-2">

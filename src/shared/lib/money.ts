@@ -1,3 +1,4 @@
+
 import BigNumber from 'bignumber.js'
 
 // Конфигурация формата для ru-RU: разделитель групп — неразрывный пробел, десятичный разделитель — запятая
@@ -9,51 +10,6 @@ export const moneyFormat = {
 
 // Ставка НДС 20%
 const VAT_RATE = 1.2
-
-// Сложение
-export function addMoney(a: number, b: number): number {
-  return new BigNumber(a).plus(b).toNumber()
-}
-
-// Вычитание
-export function subtractMoney(a: number, b: number): number {
-  return new BigNumber(a).minus(b).toNumber()
-}
-
-// Остаток от деления
-export function modMoney(a: number, b: number): number {
-  return new BigNumber(a).mod(b).toNumber()
-}
-
-// Абсолютное значение
-export function absMoney(a: number): number {
-  return new BigNumber(a).abs().toNumber()
-}
-
-// Сравнение: a > b
-export function isGreaterThan(a: number, b: number): boolean {
-  return new BigNumber(a).isGreaterThan(b)
-}
-
-// Сравнение: a < b
-export function isLessThan(a: number, b: number): boolean {
-  return new BigNumber(a).isLessThan(b)
-}
-
-// Сравнение: a === b
-export function isEqualTo(a: number, b: number): boolean {
-  return new BigNumber(a).isEqualTo(b)
-}
-
-// Проверка: значение положительное
-export function isPositiveMoney(value: number): boolean {
-  return new BigNumber(value).isPositive()
-}
-
-// Проверка: значение больше нуля
-export function isGreaterThanZero(value: number): boolean {
-  return new BigNumber(value).isGreaterThan(0)
-}
 
 // Расчёт цены с НДС (20%). Если withoutVat = true — возвращаем цену без изменений
 export function calculatePriceWithVat(price: number, withoutVat: boolean): number {
@@ -70,8 +26,7 @@ export function isPriceValidForStep(
   step: number | null | undefined,
   min: number | null | undefined,
 ): boolean {
-  if (step === null || step === undefined || !isGreaterThanZero(step)) return true
+  if (step === null || step === undefined || step <= 0) return true
   const base = min !== null && min !== undefined ? min : 0
-  const remainder = modMoney(subtractMoney(price, base), step)
-  return isEqualTo(remainder, 0)
+  return new BigNumber(price).minus(base).mod(step).isEqualTo(0)
 }

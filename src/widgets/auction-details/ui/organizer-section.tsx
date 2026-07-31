@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-
 import type { Auction } from '@/shared/api/generated/schemas'
 import { useDictionaries, getDictLabel } from '@/entities/dictionary'
 import { Section } from './section'
@@ -21,29 +19,8 @@ export function OrganizerSection({
   copiedField,
   onCopy,
 }: OrganizerSectionProps) {
-  const contactsRows = useMemo(() => {
-    if (!showContacts || !auction.organizer.contacts) {
-      return <Row label="Контакты" value="Скрыты организатором" />
-    }
-    const phone = auction.organizer.contacts.phone ?? '—'
-    const email = auction.organizer.contacts.email ?? '—'
-    return (
-      <>
-        <CopyableRow
-          label="Телефон"
-          value={phone}
-          copied={copiedField === 'Телефон'}
-          onCopy={() => onCopy(phone, 'Телефон')}
-        />
-        <CopyableRow
-          label="Email"
-          value={email}
-          copied={copiedField === 'Email'}
-          onCopy={() => onCopy(email, 'Email')}
-        />
-      </>
-    )
-  }, [showContacts, auction.organizer.contacts, copiedField, onCopy])
+  const contacts = auction.organizer.contacts
+  const showContactRows = showContacts && contacts
 
   return (
     <Section title="Организатор и оплата">
@@ -54,7 +31,23 @@ export function OrganizerSection({
         copied={copiedField === 'ИНН'}
         onCopy={() => onCopy(auction.organizer.inn, 'ИНН')}
       />
-      {contactsRows}
+      {!showContactRows && <Row label="Контакты" value="Скрыты организатором" />}
+      {showContactRows && (
+        <>
+          <CopyableRow
+            label="Телефон"
+            value={contacts.phone ?? '—'}
+            copied={copiedField === 'Телефон'}
+            onCopy={() => onCopy(contacts.phone ?? '—', 'Телефон')}
+          />
+          <CopyableRow
+            label="Email"
+            value={contacts.email ?? '—'}
+            copied={copiedField === 'Email'}
+            onCopy={() => onCopy(contacts.email ?? '—', 'Email')}
+          />
+        </>
+      )}
       <Row
         label="Тип оплаты"
         value={getDictLabel(dictionaries?.paymentTypes, auction.paymentTerms.type)}

@@ -1,5 +1,4 @@
 import type { AuctionType } from '@/shared/api/generated/schemas'
-import { isEqualTo, isGreaterThan, isLessThan } from '@/shared/lib/money'
 
 import type { Bet } from '../db'
 
@@ -9,10 +8,10 @@ import type { Bet } from '../db'
 export function sortBetsByPrice(bets: Bet[], auctionType: AuctionType): Bet[] {
   const descending = auctionType !== 'Down'
   return [...bets].sort((a, b) => {
-    if (isEqualTo(a.price, b.price)) return 0
+    if (a.price === b.price) return 0
     if (descending) {
-      return isLessThan(a.price, b.price) ? 1 : -1
+      return a.price < b.price ? 1 : -1
     }
-    return isGreaterThan(a.price, b.price) ? 1 : -1
+    return a.price > b.price ? 1 : -1
   })
 }

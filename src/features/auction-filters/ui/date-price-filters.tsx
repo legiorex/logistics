@@ -24,9 +24,7 @@ export function DatePriceFilters({
           id="filter-load-date-from"
           type="date"
           value={loadDateFrom ?? ''}
-          onChange={(event) =>
-            onChange('loadDateFrom', event.target.value || undefined)
-          }
+          onChange={(e) => onChange('loadDateFrom', e.target.value || undefined)}
         />
       </FilterField>
       <FilterField label="Погрузка до" htmlFor="filter-load-date-to">
@@ -34,9 +32,7 @@ export function DatePriceFilters({
           id="filter-load-date-to"
           type="date"
           value={loadDateTo ?? ''}
-          onChange={(event) =>
-            onChange('loadDateTo', event.target.value || undefined)
-          }
+          onChange={(e) => onChange('loadDateTo', e.target.value || undefined)}
         />
       </FilterField>
       <FilterField label="Цена от" htmlFor="filter-price-from">
@@ -46,12 +42,7 @@ export function DatePriceFilters({
           min={0}
           inputMode="numeric"
           value={priceFrom ?? ''}
-          onChange={(event) =>
-            onChange(
-              'priceFrom',
-              event.target.value === '' ? undefined : event.target.valueAsNumber,
-            )
-          }
+          onChange={(e) => onChange('priceFrom', e.target.value === '' ? undefined : e.target.valueAsNumber)}
         />
       </FilterField>
       <FilterField label="Цена до" htmlFor="filter-price-to">
@@ -61,12 +52,7 @@ export function DatePriceFilters({
           min={0}
           inputMode="numeric"
           value={priceTo ?? ''}
-          onChange={(event) =>
-            onChange(
-              'priceTo',
-              event.target.value === '' ? undefined : event.target.valueAsNumber,
-            )
-          }
+          onChange={(e) => onChange('priceTo', e.target.value === '' ? undefined : e.target.valueAsNumber)}
         />
       </FilterField>
     </div>

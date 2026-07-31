@@ -1,5 +1,4 @@
 import type { AuctionListRequest } from '@/shared/api/generated/schemas'
-import { isGreaterThan, isLessThan } from '@/shared/lib/money'
 
 import type { Auction } from './db'
 
@@ -47,11 +46,11 @@ const matchesIsBidder: Predicate = (auction, req) =>
 
 const matchesPriceFrom: Predicate = (auction, req) =>
   req.priceFrom === undefined ||
-  (auction.currentPrice != null && !isLessThan(auction.currentPrice, req.priceFrom))
+  (auction.currentPrice != null && auction.currentPrice >= req.priceFrom)
 
 const matchesPriceTo: Predicate = (auction, req) =>
   req.priceTo === undefined ||
-  (auction.currentPrice != null && !isGreaterThan(auction.currentPrice, req.priceTo))
+  (auction.currentPrice != null && auction.currentPrice <= req.priceTo)
 
 const predicates: Predicate[] = [
   matchesSearch,

@@ -7,28 +7,10 @@ import usersData from './data/users.json'
 
 export type { Auction, Bet }
 
-class MockDatabase {
-  auctions: Auction[]
-  bets: Bet[]
-  cities: typeof citiesData
-  dictionaries: typeof dictionariesData
-  users: typeof usersData
-
-  constructor() {
-    this.auctions = structuredClone(auctionsData) as Auction[]
-    this.bets = structuredClone(betsData) as Bet[]
-    this.cities = structuredClone(citiesData)
-    this.dictionaries = structuredClone(dictionariesData)
-    this.users = structuredClone(usersData)
-  }
-
-  reset() {
-    this.auctions = structuredClone(auctionsData) as Auction[]
-    this.bets = structuredClone(betsData) as Bet[]
-    this.cities = structuredClone(citiesData)
-    this.dictionaries = structuredClone(dictionariesData)
-    this.users = structuredClone(usersData)
-  }
+export const db = {
+  auctions: structuredClone(auctionsData) as Auction[],
+  bets: structuredClone(betsData) as Bet[],
+  cities: structuredClone(citiesData),
+  dictionaries: structuredClone(dictionariesData),
+  users: structuredClone(usersData),
 }
-
-export const db = new MockDatabase()
